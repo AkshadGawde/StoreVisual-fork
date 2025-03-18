@@ -13,9 +13,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Store recent coordinates
+// Store recent coordinates and images
 let coordinateHistory = [];
+let imageHistory = [];
 const MAX_HISTORY_LENGTH = 100;
+const MAX_IMAGE_HISTORY = 5;
 
 // Socket.IO connection
 io.on('connection', (socket) => {
@@ -24,6 +26,11 @@ io.on('connection', (socket) => {
   // Send existing history to new client
   if (coordinateHistory.length > 0) {
     socket.emit('coordinate-history', coordinateHistory);
+  }
+  
+  // Send existing image history
+  if (imageHistory.length > 0) {
+    socket.emit('image-history', imageHistory);
   }
   
   socket.on('disconnect', () => {
@@ -35,24 +42,30 @@ io.on('connection', (socket) => {
 app.post('/api/coordinates', (req, res) => {
   const { coordinates } = req.body;
   
-  if (!coordinates || !Array.isArray(coordinates) || coordinates.length !== 3) {
-    return res.status(400).json({ error: 'Invalid coordinates format. Expected [distance, x, z]' });
+  if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 3) {
+    return res.status(400).json({ error: 'Invalid coordinates format. Expected [distance, x, z, photoCapture]' });
   }
   
-  const [distance, x, z] = coordinates;
+  const [distance, x, z, photoCapture = 0] = coordinates;
   
   // Validate coordinate values
   if (typeof distance !== 'number' || typeof x !== 'number' || typeof z !== 'number') {
     return res.status(400).json({ error: 'All coordinate values must be numbers' });
   }
   
-  console.log(`Received coordinates: distance=${distance}, x=${x}, z=${z}`);
+  // Validate photo capture value (if provided)
+  if (photoCapture !== undefined && ![0, 1].includes(photoCapture)) {
+    return res.status(400).json({ error: 'Photo capture value must be 0 or 1' });
+  }
+  
+  console.log(`Received coordinates: distance=${distance}, x=${x}, z=${z}, photo=${photoCapture}`);
   
   // Process and store the coordinates
   const coordinateData = {
     distance,
     x,
     z,
+    photoCapture: photoCapture || 0,
     timestamp: Date.now()
   };
   
@@ -67,16 +80,66 @@ app.post('/api/coordinates', (req, res) => {
   res.json({ status: 'success', message: 'Coordinates received' });
 });
 
+// API endpoint to receive image links
+app.post('/api/image', (req, res) => {
+  const { imageUrl, metadata } = req.body;
+  
+  if (!imageUrl) {
+    return res.status(400).json({ error: 'No image URL provided' });
+  }
+  
+  console.log(`Received image URL: ${imageUrl}`);
+  
+  // Create image data object
+  const imageData = {
+    url: imageUrl,
+    metadata: metadata || {},
+    timestamp: Date.now()
+  };
+  
+  // Add to history and maintain size limit
+  imageHistory.unshift(imageData); // Add to beginning so newest is first
+  if (imageHistory.length > MAX_IMAGE_HISTORY) {
+    imageHistory.pop();
+  }
+  
+  // Broadcast to all connected clients
+  io.emit('new-image', imageData);
+  io.emit('image-history', imageHistory);
+  
+  res.json({ status: 'success', message: 'Image URL received' });
+});
+
 // Get all coordinates
 app.get('/api/coordinates', (req, res) => {
   res.json(coordinateHistory);
 });
 
-// Clear all coordinates
+// Get all images
+app.get('/api/images', (req, res) => {
+  res.json(imageHistory);
+});
+
+// Clear all coordinates and images
 app.delete('/api/coordinates', (req, res) => {
   coordinateHistory = [];
   io.emit('coordinates-cleared');
   res.json({ status: 'success', message: 'Coordinates cleared' });
+});
+
+app.delete('/api/images', (req, res) => {
+  imageHistory = [];
+  io.emit('images-cleared');
+  res.json({ status: 'success', message: 'Images cleared' });
+});
+
+// Clear everything
+app.delete('/api/all', (req, res) => {
+  coordinateHistory = [];
+  imageHistory = [];
+  io.emit('coordinates-cleared');
+  io.emit('images-cleared');
+  res.json({ status: 'success', message: 'All data cleared' });
 });
 
 const PORT = process.env.PORT || 3000;
