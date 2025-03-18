@@ -12,32 +12,40 @@
             padding: 20px;
             background-color: #ede7f6;
             color: #000000;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .container {
             max-width: 1200px;
+            height: calc(100vh - 40px);
             margin: 0 auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         h1 {
             text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
         }
 
         .control-panel {
             padding: 15px;
             background-color: #d1c4e9;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .info-display {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .control-panel button {
@@ -49,6 +57,8 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            position: relative;
+            overflow: hidden;
         }
 
         .control-panel button.clear {
@@ -59,66 +69,69 @@
             background-color: #b71c1c;
         }
 
+        .control-panel button:hover {
+            background-color: #673ab7;
+        }
+
+        .control-panel button.button-pressed {
+            transform: scale(0.95);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
         .layout-container {
             display: flex;
             gap: 20px;
+            flex: 1;
+            min-height: 0;
         }
 
         .left-container {
             width: 70%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .top-box {
-            height: 100px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid black;
-        }
-
-        .bottom-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        .left-box {
-            width: 100px;
-            height: 800px;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            border: 1px solid black;
-            text-align: center;
         }
 
         #visualization {
-            flex-grow: 1;
-            height: 800px;
+            width: 100%;
+            height: 100%;
             background-color: white;
             position: relative;
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .point {
             position: absolute;
-            width: 7px; /* Reduced from 8px to 7px */
-            height: 7px; /* Reduced from 8px to 7px */
+            width: 7px;
+            height: 7px;
             background-color: red;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
             transition: transform 0.2s ease;
+            z-index: 10;
         }
 
         .point.photo-captured {
             background-color: blue;
+            width: 10px;
+            height: 10px;
+            border: 2px solid white;
         }
 
         .point:hover {
@@ -127,9 +140,7 @@
 
         .right-container {
             width: 30%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            min-width: 300px;
         }
 
         .card {
@@ -140,7 +151,7 @@
             padding: 15px;
             border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 100%;
             transition: all 0.3s ease;
             margin-bottom: 10px;
         }
@@ -193,32 +204,14 @@
             font-size: 0.9em;
         }
 
-        .image-carousel {
+        #imageContainer {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            max-height: 800px;
+            height: 100%;
             overflow-y: auto;
             padding-right: 10px;
         }
-
-        /* .photo-indicator {
-            display: inline-block;
-            padding: 8px;
-            margin-left: 10px;
-            border-radius: 50%;
-            background-color: #7e57c2;
-            color: white;
-            width: 24px;
-            height: 24px;
-            text-align: center;
-            line-height: 24px;
-            opacity: 0.3;
-        }
-
-        .photo-indicator.active {
-            opacity: 1;
-        } */
 
         .distance-display {
             display: inline-block;
@@ -238,21 +231,21 @@
         }
 
         /* Custom scrollbar for the image container */
-        .image-carousel::-webkit-scrollbar {
+        #imageContainer::-webkit-scrollbar {
             width: 8px;
         }
 
-        .image-carousel::-webkit-scrollbar-track {
+        #imageContainer::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
 
-        .image-carousel::-webkit-scrollbar-thumb {
+        #imageContainer::-webkit-scrollbar-thumb {
             background: #7e57c2;
             border-radius: 10px;
         }
 
-        .image-carousel::-webkit-scrollbar-thumb:hover {
+        #imageContainer::-webkit-scrollbar-thumb:hover {
             background: #6a4aaa;
         }
     </style>
@@ -262,10 +255,8 @@
     <div class="container">
         <h1>Store Visit Tracking</h1>
         <div class="control-panel">
-            <h3>Control Panel</h3>
             <div class="info-display">
                 <span id="distance" class="distance-display">Distance: 0.00</span>
-                <!-- <div id="photoIndicator" class="photo-indicator">📷</div> -->
             </div>
             <div style="margin-top: 10px;">
                 <button id="testButton" type="button">Send Test Coordinates</button>
@@ -274,14 +265,10 @@
         </div>
         <div class="layout-container">
             <div class="left-container">
-                <div class="top-box"></div>
-                <div class="bottom-container">
-                    <div class="left-box"></div>
-                    <div id="visualization"></div>
-                </div>
+                <div id="visualization"></div>
             </div>
             <div class="right-container">
-                <div id="imageContainer" class="image-carousel">
+                <div id="imageContainer">
                     <!-- Image cards will be dynamically added here -->
                 </div>
             </div>

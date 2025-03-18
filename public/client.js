@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const testButton = document.getElementById("testButton")
   const clearButton = document.getElementById("clearButton")
   const distanceDisplay = document.getElementById("distance")
-  // const photoIndicator = document.getElementById("photoIndicator")
   const imageContainer = document.getElementById("imageContainer")
 
   let coordinates = []
@@ -56,11 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const lastCoord = history[history.length - 1]
       totalDistance = lastCoord.distance
       updateDistanceDisplay(lastCoord)
-
-      // Check if the last coordinate has a photo captured
-      // if (lastCoord.photoCapture === 1) {
-      //   showPhotoIndicator()
-      // }
     }
 
     renderAllCoordinates()
@@ -84,11 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
     totalDistance = data.distance
     updateDistanceDisplay(data)
     renderCoordinate(data)
-
-    // Handle photo capture
-    // if (data.photoCapture === 1) {
-    //   showPhotoIndicator()
-    // }
   })
 
   // Receive new image
@@ -109,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Coordinates cleared")
     coordinates = []
     totalDistance = 0
-    // hidePhotoIndicator()
     updateDistanceDisplay({ distance: 0 })
     vizElement.innerHTML = ""
     imagePointMap.clear()
@@ -158,9 +146,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // If photo was captured, send a test image URL
         if (photoCapture === 1) {
-          // Use the specific URL provided instead of generating a random one
-          const imageUrl =
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone.png?alt=media&token=cefac083-0fbe-4d83-916d-ac2e1cdd6326"
+          // Use a random selection of image URLs for testing
+          const testImages = [
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone.png?alt=media&token=cefac083-0fbe-4d83-916d-ac2e1cdd6326",
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FApple_Poster_Phone.png?alt=media&token=7f75f533-e249-44e3-8056-adca5caef03d",
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_Display_Tablet.png?alt=media&token=12345678",
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FLGE_Banner_TV.png?alt=media&token=87654321"
+          ]
+          
+          const imageUrl = testImages[Math.floor(Math.random() * testImages.length)]
 
           fetch("/api/image", {
             method: "POST",
@@ -226,14 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return currentDiff < closestDiff ? coord : closest
     }, coordinates[0])
   }
-
-  // function showPhotoIndicator() {
-  //   photoIndicator.classList.add("active")
-  // }
-
-  // function hidePhotoIndicator() {
-  //   photoIndicator.classList.remove("active")
-  // }
 
   function updateDistanceDisplay(coord) {
     // Animate the distance change
@@ -349,6 +335,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function parseImageUrl(url) {
+    try {
+      // Extract the filename from the URL
+      // Looking for the pattern: .../ARTracker%2F{Brand}_{Visual}_{Product}.png
+      const regex = /ARTracker%2F([^_]+)_([^_]+)_([^.]+)\.png/;
+      const match = url.match(regex);
+      
+      if (match && match.length >= 4) {
+        return {
+          brand: match[1] || "Unknown",
+          visual: match[2] || "Unknown",
+          product: match[3] || "Unknown"
+        };
+      }
+      
+      // Fallback if regex doesn't match
+      return {
+        brand: "Unknown",
+        visual: "Unknown", 
+        product: "Unknown"
+      };
+    } catch (error) {
+      console.error("Error parsing image URL:", error);
+      return {
+        brand: "Unknown",
+        visual: "Unknown",
+        product: "Unknown"
+      };
+    }
+  }
+
   function createCardWithImage(imageData) {
     const card = document.createElement("div")
     card.className = "card"
@@ -368,24 +385,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const content = document.createElement("ul")
     content.className = "card-content"
 
-    // Extract brand, visual and product from URL
-    // The URL format is: .../ARTracker%2F{Brand}_{Visual}_{Product}.png?...
-    const brand = "Google"
-    const visual = "Poster"
-    const product = "Phone"
+    // Parse brand, visual and product from URL
+    const parsedInfo = parseImageUrl(imageData.url);
 
     const brandItem = document.createElement("li")
     brandItem.className = "brand"
-    brandItem.textContent = `Brand: ${brand}`
+    brandItem.textContent = `Brand: ${parsedInfo.brand}`
     content.appendChild(brandItem)
 
     const visualItem = document.createElement("li")
     visualItem.className = "visual"
-    visualItem.textContent = `Visual Merchandise: ${visual}`
+    visualItem.textContent = `Visual Merchandise: ${parsedInfo.visual}`
     content.appendChild(visualItem)
 
     const productItem = document.createElement("li")
-    productItem.textContent = `Product: ${product}`
+    productItem.textContent = `Product: ${parsedInfo.product}`
     content.appendChild(productItem)
 
     // Add the AI Generated Summary text in italics
@@ -415,4 +429,3 @@ document.addEventListener("DOMContentLoaded", () => {
     return card
   }
 })
-
