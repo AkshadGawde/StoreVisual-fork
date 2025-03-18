@@ -17,7 +17,7 @@ app.use(express.static('public'));
 let coordinateHistory = [];
 let imageHistory = [];
 const MAX_HISTORY_LENGTH = 100;
-const MAX_IMAGE_HISTORY = 5;
+// Removed the MAX_IMAGE_HISTORY limit to allow unlimited images
 
 // Socket.IO connection
 io.on('connection', (socket) => {
@@ -97,11 +97,8 @@ app.post('/api/image', (req, res) => {
     timestamp: Date.now()
   };
   
-  // Add to history and maintain size limit
+  // Add to history without removing older images
   imageHistory.unshift(imageData); // Add to beginning so newest is first
-  if (imageHistory.length > MAX_IMAGE_HISTORY) {
-    imageHistory.pop();
-  }
   
   // Broadcast to all connected clients
   io.emit('new-image', imageData);
