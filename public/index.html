@@ -101,10 +101,8 @@
             flex-grow: 1;
             height: 800px;
             background-color: white;
-            border-radius: 10px;
             position: relative;
             border-radius: 10px;
-            border: 1px solid black;
             overflow: hidden;
         }
 
@@ -137,7 +135,7 @@
 
         .card {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             background-color: white;
             border-radius: 10px;
             padding: 15px;
@@ -146,17 +144,10 @@
             max-width: 400px;
         }
 
-        .card-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
         .image-placeholder {
-            width: 100%;
-            height: 150px;
+            width: 30px;
+            height: auto;
+            aspect-ratio: 16 / 9;
             background-color: #d1c4e9;
             border-radius: 5px;
             display: flex;
@@ -165,6 +156,14 @@
             font-weight: bold;
             color: #4a148c;
             margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
         }
 
         .photo-indicator {
@@ -202,7 +201,8 @@
         <div class="control-panel">
             <h3>Control Panel</h3>
             <div class="info-display">
-                <span id="distance" class="distance-display">Virtual Merchandise, Product, Brand<br>AI Generated Summary And Text</span>
+                <span id="distance" class="distance-display">Virtual Merchandise, Product, Brand<br>AI Generated Summary
+                    And Text</span>
                 <div id="photoIndicator" class="photo-indicator">📷</div>
             </div>
             <div style="margin-top: 10px;">
