@@ -127,12 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        imageUrl: imageUrl,
-                        metadata: {
-                            x: x,
-                            z: z,
-                            distance: totalDistance
-                        }
+                        imageUrl: imageUrl
                     }),
                 })
                 .then(response => response.json())
@@ -266,32 +261,22 @@ document.addEventListener('DOMContentLoaded', () => {
         img.src = imageData.url;
         img.alt = 'Captured Image';
         img.className = 'card-image';
+        img.onerror = function() {
+            console.error('Image failed to load:', imageData.url);
+            this.src = 'https://via.placeholder.com/400x150?text=Image+Load+Error';
+        };
         
         const content = document.createElement('ul');
         content.className = 'card-content';
         
-        // Add metadata if available
-        if (imageData.metadata) {
-            const distanceItem = document.createElement('li');
-            distanceItem.textContent = `Virtual Merchandise, Product, Brand`;
-            content.appendChild(distanceItem);
-            
-            const positionItem = document.createElement('li');
-            positionItem.textContent = `AI Generated Summary And Text`;
-            content.appendChild(positionItem);
-            
-            const timeItem = document.createElement('li');
-            const date = new Date(imageData.timestamp);
-            timeItem.textContent = `Time: ${date.toLocaleTimeString()}`;
-            content.appendChild(timeItem);
-        } else {
-            // Default content if no metadata
-            for (let i = 0; i < 3; i++) {
-                const li = document.createElement('li');
-                li.textContent = 'Image data';
-                content.appendChild(li);
-            }
-        }
+        const virtualMerchandiseItem = document.createElement('li');
+        virtualMerchandiseItem.textContent = 'Virtual Merchandise, Product, Brand';
+        content.appendChild(virtualMerchandiseItem);
+        
+        const aiGeneratedItem = document.createElement('li');
+        aiGeneratedItem.textContent = 'AI Generated Summary And Text';
+        content.appendChild(aiGeneratedItem);
+        
         card.appendChild(img);
         card.appendChild(content);
         
@@ -309,11 +294,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = document.createElement('ul');
         content.className = 'card-content';
         
-        for (let i = 0; i < 4; i++) {
-            const li = document.createElement('li');
-            li.textContent = 'Lorem Ipsum';
-            content.appendChild(li);
-        }
+        const virtualMerchandiseItem = document.createElement('li');
+        virtualMerchandiseItem.textContent = 'Virtual Merchandise, Product, Brand';
+        content.appendChild(virtualMerchandiseItem);
+        
+        const aiGeneratedItem = document.createElement('li');
+        aiGeneratedItem.textContent = 'AI Generated Summary And Text';
+        content.appendChild(aiGeneratedItem);
         
         card.appendChild(placeholder);
         card.appendChild(content);
