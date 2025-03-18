@@ -47,22 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         totalDistance = 0;
         updateInfoDisplays({ distance: 0, x: 0, z: 0 });
         vizElement.innerHTML = '';
-        
-        // Restore coordinate axes
-        const axisX = document.createElement('div');
-        axisX.className = 'axis-x';
-        vizElement.appendChild(axisX);
-        
-        const axisZ = document.createElement('div');
-        axisZ.className = 'axis-z';
-        vizElement.appendChild(axisZ);
     });
     
     // Test button to send sample coordinates
     testButton.addEventListener('click', () => {
-        // Generate random coordinates between -0.5 and 0.5
-        const x = (Math.random() - 0.5).toFixed(2);
-        const z = (Math.random() - 0.5).toFixed(2);
+        // Generate random coordinates between -100 and 100
+        const x = Math.round((Math.random() * 200 - 100) * 100) / 100;
+        const z = Math.round((Math.random() * 200 - 100) * 100) / 100;
         
         // Increase total distance by a small random amount
         totalDistance += Math.random() * 0.1;
@@ -73,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                coordinates: [parseFloat(totalDistance.toFixed(2)), parseFloat(x), parseFloat(z)]
+                coordinates: [parseFloat(totalDistance.toFixed(2)), x, z]
             }),
         })
         .then(response => response.json())
@@ -97,17 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderAllCoordinates() {
-        // Clear all points and lines but keep the axes
+        // Clear all points and lines
         vizElement.innerHTML = '';
-        
-        // Restore coordinate axes
-        const axisX = document.createElement('div');
-        axisX.className = 'axis-x';
-        vizElement.appendChild(axisX);
-        
-        const axisZ = document.createElement('div');
-        axisZ.className = 'axis-z';
-        vizElement.appendChild(axisZ);
         
         // Render all coordinates
         coordinates.forEach((coord, index) => {
@@ -127,10 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderPoint(coord) {
-        // Transform coordinates from -1,1 range to screen position
+        // Transform coordinates from -100,100 range to screen position
         // (0,0) at center of screen
-        const screenX = centerX + (coord.x * centerX);
-        const screenZ = centerZ + (coord.z * centerZ);
+        const screenX = centerX + (coord.x * centerX / 100);
+        const screenZ = centerZ + (coord.z * centerZ / 100);
         
         // Create point
         const pointElement = document.createElement('div');
@@ -142,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderLine(fromCoord, toCoord) {
         // Transform coordinates
-        const fromX = centerX + (fromCoord.x * centerX);
-        const fromZ = centerZ + (fromCoord.z * centerZ);
-        const toX = centerX + (toCoord.x * centerX);
-        const toZ = centerZ + (toCoord.z * centerZ);
+        const fromX = centerX + (fromCoord.x * centerX / 100);
+        const fromZ = centerZ + (fromCoord.z * centerZ / 100);
+        const toX = centerX + (toCoord.x * centerX / 100);
+        const toZ = centerZ + (toCoord.z * centerZ / 100);
         
         const lineElement = document.createElement('div');
         lineElement.className = 'line';
