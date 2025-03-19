@@ -16,6 +16,7 @@ app.use(express.static("public"));
 // Store recent coordinates and images
 let coordinateHistory = [];
 let imageHistory = [];
+let bannerDataHistory = [];  // Add a new array to store banner data
 const MAX_HISTORY_LENGTH = 100;
 // Removed the MAX_IMAGE_HISTORY limit to allow unlimited images
 
@@ -127,6 +128,7 @@ app.post("/api/banner_data", async (req, res) => {
     if (!imageUrl || !brand || !position || !type) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+    
     const bannerData = {
       imageUrl,
       brand,
@@ -134,7 +136,20 @@ app.post("/api/banner_data", async (req, res) => {
       type,
       timestamp: Date.now(),
     };
+    
     console.log("Received banner data:", bannerData);
+    
+    // Store the banner data
+    bannerDataHistory.push(bannerData);
+    
+    // Update the corresponding image with the banner data
+    const imageIndex = imageHistory.findIndex(img => img.url === imageUrl);
+    if (imageIndex !== -1) {
+      imageHistory[imageIndex].metadata.bannerData = bannerData;
+      
+      // Notify all clients about the updated image
+      io.emit("image-history", imageHistory);
+    }
 
     res.status(201).json({ message: "Banner data received", data: bannerData });
   } catch (error) {
@@ -151,6 +166,23 @@ app.get("/api/coordinates", (req, res) => {
 // Get all images
 app.get("/api/images", (req, res) => {
   res.json(imageHistory);
+});
+
+// Get all banner data
+app.get("/api/banner_data", (req, res) => {
+  res.json(bannerDataHistory);
+});
+
+// Get banner data for a specific image
+app.get("/api/banner_data/:imageUrl", (req, res) => {
+  const { imageUrl } = req.params;
+  const data = bannerDataHistory.find(item => item.imageUrl === imageUrl);
+  
+  if (data) {
+    res.json(data);
+  } else {
+    res.status(404).json({ error: "No banner data found for this image" });
+  }
 });
 
 // Clear all coordinates and images
@@ -170,6 +202,7 @@ app.delete("/api/images", (req, res) => {
 app.delete("/api/all", (req, res) => {
   coordinateHistory = [];
   imageHistory = [];
+  bannerDataHistory = [];  // Also clear banner data
   io.emit("coordinates-cleared");
   io.emit("images-cleared");
   res.json({ status: "success", message: "All data cleared" });
