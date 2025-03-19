@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.appendChild(circle);
   }
 
-  testButton.addEventListener("mousedown", createRipple);
+  // testButton.addEventListener("mousedown", createRipple);
   clearButton.addEventListener("mousedown", createRipple);
 
   // Receive initial history
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (photoCapture === 1) {
           // Use a random selection of image URLs for testing
           const testImages = [
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone.png?alt=media&token=cefac083-0fbe-4d83-916d-ac2e1cdd6326",
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone_0.9244657.png?alt=media&token=7affeac9-1f60-42b1-9e1f-d2c65a348da8",
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FApple_Poster_Phone.png?alt=media&token=7f75f533-e249-44e3-8056-adca5caef03d",
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_Display_Tablet.png?alt=media&token=12345678",
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FLGE_Banner_TV.png?alt=media&token=87654321",
@@ -166,6 +166,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const imageUrl =
             testImages[Math.floor(Math.random() * testImages.length)];
 
+          // For testing, also send randomized banner data
+          const brands = ["Google", "Apple", "Samsung", "LGE"];
+          const positions = ["Top Shelf", "Eye Level", "Bottom Shelf", "End Cap"];
+          const types = ["Phone", "Tablet", "TV", "Laptop"];
+          
+          const randomBrand = brands[Math.floor(Math.random() * brands.length)];
+          const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+          const randomType = types[Math.floor(Math.random() * types.length)];
+
+          // First post the image
           fetch("/api/image", {
             method: "POST",
             headers: {
@@ -179,7 +189,26 @@ document.addEventListener("DOMContentLoaded", () => {
             }),
           })
             .then((response) => response.json())
-            .then((data) => console.log("Image Response:", data))
+            .then((data) => {
+              console.log("Image Response:", data);
+              
+              // Then post the banner data
+              fetch("/api/banner_data", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  imageUrl: imageUrl,
+                  brand: randomBrand,
+                  position: randomPosition,
+                  type: randomType,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => console.log("Banner Data Response:", data))
+                .catch((error) => console.error("Error sending banner data:", error));
+            })
             .catch((error) => console.error("Error sending image:", error));
         }
       })
@@ -363,24 +392,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function parseImageUrl(url) {
     try {
-      // Extract the filename from the URL
-      // Looking for the pattern: .../ARTracker%2F{Brand}_{Visual}_{Product}.png
-      const regex = /ARTracker%2F([^_]+)_([^_]+)_([^.]+)\.png/;
-      const match = url.match(regex);
-
-      if (match && match.length >= 4) {
+      // First, decode the URL to handle any encoded characters
+      const decodedUrl = decodeURIComponent(url);
+      
+      // Extract the filename portion from the URL
+      let filename = null;
+      if (decodedUrl.includes('/o/ARTracker%2F')) {
+        filename = decodedUrl.split('/o/ARTracker%2F')[1];
+      } else if (decodedUrl.includes('/o/ARTracker/')) {
+        filename = decodedUrl.split('/o/ARTracker/')[1];
+      }
+      
+      if (filename) {
+        // Remove the query parameters
+        filename = filename.split('?')[0];
+        
+        // Split the filename by underscores
+        const parts = filename.split('_');
+        
+        // Handle case when there are no underscores in the filename
+        if (parts.length === 1) {
+          // Try to extract information from single part
+          const nameParts = parts[0].replace(/\.png$/, '').split(/(?=[A-Z])/);
+          if (nameParts.length > 2) {
+            return {
+              brand: nameParts[0] || "Unknown",
+              visual: nameParts[1] || "Unknown",
+              product: nameParts[2] || "Unknown",
+              measurement: "N/A"
+            };
+          }
+        }
+        
+        // Extract components based on position
+        const brand = parts[0] || "Unknown";
+        
+        // Handle "Dummy device" which contains a space
+        let visual = parts[1] || "Unknown";
+        let productIndex = 2;
+        
+        // If visual has a space that was encoded in the URL, it might span multiple parts
+        if (parts.length > 2 && parts[2] && !parts[2].toLowerCase().includes("phone") && 
+            !parts[2].toLowerCase().includes("tablet") && !parts[2].toLowerCase().includes("tv")) {
+          visual = visual + " " + parts[2];
+          productIndex = 3;
+        }
+        
+        // Get product and remove .png extension if it exists
+        let product = parts[productIndex] || "Unknown";
+        product = product.replace(/\.png$/i, '');
+        
+        // Check if we have a measurement (next part after product before .png)
+        let measurement = "N/A";
+        if (parts.length > productIndex + 1) {
+          // Extract measurement without the .png extension
+          measurement = parts[productIndex + 1].replace(/\.png$/i, '');
+        }
+        
         return {
-          brand: match[1] || "Unknown",
-          visual: match[2] || "Unknown",
-          product: match[3] || "Unknown",
+          brand,
+          visual,
+          product,
+          measurement
         };
       }
-
-      // Fallback if regex doesn't match
+  
+      // Fallback if parsing fails
       return {
         brand: "Unknown",
         visual: "Unknown",
         product: "Unknown",
+        measurement: "N/A"
       };
     } catch (error) {
       console.error("Error parsing image URL:", error);
@@ -388,32 +470,29 @@ document.addEventListener("DOMContentLoaded", () => {
         brand: "Unknown",
         visual: "Unknown",
         product: "Unknown",
+        measurement: "N/A"
       };
     }
   }
-
-  async function fetchBannerMetadata() {
+  
+  async function fetchBannerData(imageUrl) {
     try {
       const response = await fetch("/api/banner_data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageUrl: "https://example.com/sample-image.jpg",
-          brand: "Nike",
-          position: "Top Shelf",
-          type: "Shoes",
-        }),
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
       });
 
-      const result = await response.json();
       if (response.ok) {
-        return result.data; // Returns metadata from API
+        const data = await response.json();
+        // Find the banner data for this image URL
+        const bannerData = data.find(item => item.imageUrl === imageUrl);
+        return bannerData || null;
       } else {
-        console.error("Error fetching metadata:", result.error);
+        console.error("Error fetching banner data:", response.statusText);
         return null;
       }
     } catch (error) {
-      console.error("Error fetching metadata:", error);
+      console.error("Error fetching banner data:", error);
       return null;
     }
   }
@@ -437,7 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const content = document.createElement("ul");
     content.className = "card-content";
 
-    // Parse brand, visual and product from URL
+    // Parse brand, visual, product, and measurement from URL
     const parsedInfo = parseImageUrl(imageData.url);
 
     const brandItem = document.createElement("li");
@@ -458,10 +537,42 @@ document.addEventListener("DOMContentLoaded", () => {
     measurementItem.textContent = `Measurement: ${parsedInfo.measurement}`;
     content.appendChild(measurementItem);
 
-    // Add the AI Generated Summary text in italics
+    // Add the AI Generated Summary text
     const aiSummary = document.createElement("li");
     aiSummary.className = "ai-summary";
-    aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.brand}, Position - ${imageData.position}, Type - ${imageData.type}</i>`;
+    
+    // Try to get the banner data from the API
+    if (imageData.metadata && imageData.metadata.bannerData) {
+      // If banner data exists in metadata, use it
+      aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
+    } else {
+      // Make a placeholder and update it asynchronously
+      aiSummary.innerHTML = `<i>AI Generated Summary: Loading...</i>`;
+      
+      // Fetch banner data asynchronously
+      fetch("/api/banner_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageUrl: imageData.url,
+          brand: parsedInfo.brand,
+          position: "Auto-detected",
+          type: parsedInfo.product,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data && data.data) {
+            aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching banner data:", error);
+          aiSummary.innerHTML = `<i>AI Generated Summary: Could not load data</i>`;
+        });
+    }
 
     content.appendChild(aiSummary);
 
