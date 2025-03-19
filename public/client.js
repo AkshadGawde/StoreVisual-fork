@@ -392,6 +392,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function fetchBannerMetadata() {
+    try {
+      const response = await fetch("/api/banner_data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageUrl: "https://example.com/sample-image.jpg",
+          brand: "Nike",
+          position: "Top Shelf",
+          type: "Shoes",
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        return result.data; // Returns metadata from API
+      } else {
+        console.error("Error fetching metadata:", result.error);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+      return null;
+    }
+  }
+
   function createCardWithImage(imageData) {
     const card = document.createElement("div");
     card.className = "card";
@@ -428,10 +454,15 @@ document.addEventListener("DOMContentLoaded", () => {
     productItem.textContent = `Product: ${parsedInfo.product}`;
     content.appendChild(productItem);
 
+    const measurementItem = document.createElement("li");
+    measurementItem.textContent = `Measurement: ${parsedInfo.measurement}`;
+    content.appendChild(measurementItem);
+
     // Add the AI Generated Summary text in italics
     const aiSummary = document.createElement("li");
     aiSummary.className = "ai-summary";
-    aiSummary.innerHTML = "<i>AI Generated Summary And Text</i>";
+    aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.brand}, Position - ${imageData.position}, Type - ${imageData.type}</i>`;
+
     content.appendChild(aiSummary);
 
     card.appendChild(img);
