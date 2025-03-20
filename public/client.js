@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPoint(coord) {
     // Transform coordinates from -100,100 range to screen position
     // (0,0) at center of screen
-    plotO();
+    // plotO();
     console.log(coord.x,coord.z);
     
     console.log(centerX,centerZ);
@@ -342,10 +342,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Set initial scale to 0 for animation
     pointElement.style.transform = "translate(-50%, -50%) scale(0)";
+    // pointElement.style.backgroundColor='#CACEFF'
+
 
     // If photo was captured at this point, add the photo-captured class
     if (coord.photoCapture === 1) {
+      const vizElement = document.getElementById("visualization");
+      let trial=find_nearest(coord.x,coord.z,diagonal=2,vizElement);
+      console.log(trial);
       pointElement.classList.add("photo-captured");
+      pointElement.style.color='red'
+      pointElement.style.backgroundImage = "url('/images/image.png')";
+      // pointElement.style.zIndex = 5;
 
       // Add click event to show the corresponding image
       pointElement.addEventListener("click", () => {
@@ -384,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderAllImages() {
     // Clear image container
     imageContainer.innerHTML = "";
-
+  
     // Render images or empty state message
     if (imageHistory.length === 0) {
       const message = document.createElement("div");
@@ -399,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.style.opacity = "0";
         card.style.transform = "translateY(20px)";
         imageContainer.appendChild(card);
-
+  
         // Trigger animation with staggered delay
         setTimeout(() => {
           card.style.opacity = "1";
@@ -408,7 +416,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
   function parseImageUrl(url) {
     try {
       // First, decode the URL to handle any encoded characters
@@ -518,104 +525,87 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createCardWithImage(imageData) {
     const card = document.createElement("div");
-    card.className = "card";
-    card.dataset.timestamp = imageData.timestamp;
-    card.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+  card.className = "card";
+  card.dataset.timestamp = imageData.timestamp;
+  card.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
 
-    const img = document.createElement("img");
-    img.src = imageData.url;
-    img.alt = "Captured Image";
-    img.className = "card-image";
-    img.loading = "lazy"; // Add lazy loading
-    img.onerror = function () {
-      console.error("Image failed to load:", imageData.url);
-      this.src = "https://via.placeholder.com/120x120?text=Image+Load+Error";
-    };
-
-    const content = document.createElement("ul");
-    content.className = "card-content";
-
-    // Parse brand, visual, product, and measurement from URL
-    const parsedInfo = parseImageUrl(imageData.url);
-
-    const brandItem = document.createElement("li");
-    brandItem.className = "brand";
-    brandItem.textContent = `Brand: ${parsedInfo.brand}`;
-    content.appendChild(brandItem);
-
-    const visualItem = document.createElement("li");
-    visualItem.className = "visual";
-    visualItem.textContent = `Visual Merchandise: ${parsedInfo.visual}`;
-    content.appendChild(visualItem);
-
-    const productItem = document.createElement("li");
-    productItem.textContent = `Product: ${parsedInfo.product}`;
-    content.appendChild(productItem);
-
-    const measurementItem = document.createElement("li");
-    measurementItem.textContent = `Measurement: ${parsedInfo.measurement}`;
-    content.appendChild(measurementItem);
-
-    // Add the AI Generated Summary text
-    const aiSummary = document.createElement("li");
-    aiSummary.className = "ai-summary";
+  // Image container for centering
+  const imgContainer = document.createElement("div");
+  imgContainer.className = "card-image-container";
+  
+  // Image element
+  const img = document.createElement("img");
+  img.src = imageData.url;
+  img.alt = "Captured Image";
+  img.className = "card-image";
+  img.loading = "lazy";
+  img.onerror = function () {
+    this.src = "https://via.placeholder.com/340x180?text=Image+Load+Error";
+  };
+  
+  // Add image to its container
+  imgContainer.appendChild(img);
+  
+  // Content section
+  const content = document.createElement("div");
+  content.className = "card-content";
+  
+  // Info grid layout
+  const infoGrid = document.createElement("div");
+  infoGrid.className = "card-info";
+  
+  // Parse info from URL
+  const parsedInfo = parseImageUrl(imageData.url);
+  
+  // Create info pairs (label + value)
+  const infoPairs = [
+    { label: "Brand", value: parsedInfo.brand },
+    { label: "Visual Merchandise", value: parsedInfo.visual },
+    { label: "Product", value: parsedInfo.product },
+    { label: "Measurement", value: parsedInfo.measurement || "N/A" }
+  ];
+  
+  // Add each pair to the grid
+  infoPairs.forEach(pair => {
+    const label = document.createElement("div");
+    label.className = "card-info-label";
+    label.textContent = pair.label;
     
-    // Try to get the banner data from the API
-    if (imageData.metadata && imageData.metadata.bannerData) {
-      // If banner data exists in metadata, use it
-      aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
-    } else {
-      // Make a placeholder and update it asynchronously
-      aiSummary.innerHTML = `<i>AI Generated Summary: Loading...</i>`;
-      
-      // Fetch banner data asynchronously
-      fetch("/api/banner_data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          imageUrl: imageData.url,
-          brand: parsedInfo.brand,
-          position: "Auto-detected",
-          type: parsedInfo.product,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data && data.data) {
-            aiSummary.innerHTML = `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching banner data:", error);
-          aiSummary.innerHTML = `<i>AI Generated Summary: Could not load data</i>`;
-        });
-    }
-
-    content.appendChild(aiSummary);
-
-    card.appendChild(img);
-    card.appendChild(content);
-
-    // Add click event for the card
-    card.addEventListener("click", () => {
-      // Remove active class from all cards
-      document
-        .querySelectorAll(".card")
-        .forEach((c) => c.classList.remove("active"));
-
-      // Add active class to clicked card
-      card.classList.add("active");
-
-      // Add a subtle scale animation
-      card.style.transform = "scale(1.05)";
-      setTimeout(() => {
-        card.style.transform = "";
-      }, 300);
-    });
-
-    return card;
+    const value = document.createElement("div");
+    value.className = "card-info-value";
+    value.textContent = pair.value;
+    
+    infoGrid.appendChild(label);
+    infoGrid.appendChild(value);
+  });
+  
+  // Create button
+  const button = document.createElement("button");
+  button.className = "card-button";
+  button.textContent = "View Full Report";
+  
+  // Add all elements to the card
+  content.appendChild(infoGrid);
+  content.appendChild(button);
+  card.appendChild(imgContainer);
+  card.appendChild(content);
+  
+  // Add click event for the card
+  card.addEventListener("click", () => {
+    // Remove active class from all cards
+    document.querySelectorAll(".card").forEach((c) => c.classList.remove("active"));
+    
+    // Add active class to clicked card
+    card.classList.add("active");
+    
+    // Add a subtle scale animation
+    card.style.transform = "scale(1.05)";
+    setTimeout(() => {
+      card.style.transform = "";
+    }, 300);
+  });
+  
+  return card;
   }
 });
 
@@ -686,7 +676,129 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+const structures = [
+  // {
+  //   id: 'shelf-1',
+  //   name: 'A',
+  //   type: 'shelf',
+  //   coordinates: [[-500,-250], [-500, 250], [500, 250], [500, -250]]  
+  // },
+  // {
+  //   id:'origin',
+  //   name: 'o',
+  //   type: 'entrance',
+  //   coordinates: [[0,0], [0,0], [0, 0], [0, 0]]
 
+  // },
+  {
+    id: 'bottom-entry',
+    name: 'B',
+    type: 'counter',
+    coordinates:  [[-500, -250], [-500, -150], [-450, -150], [-450, -250]] 
+  },
+  {
+    id: 'top-entry',
+    name: 'C',
+    type: 'counter',
+    coordinates: [[-500, 250], [-500, 150], [-450, 150], [-450, 250]] 
+  },
+  {
+    id: 'wearables',
+    name: 'D',
+    type: 'entrance',
+    coordinates: [[-450, -250], [-450, -220], [50, -220], [50, -250]] 
+  },
+  {
+    id: 'home appliance',
+    name: 'E',
+    type: 'entrance',
+    coordinates:   [[50, -250], [50, -190], [500, -190], [500, -250]]  
+  },
+  // {
+  //   id: 'PC-notebook',
+  //   name: 'F',
+  //   type: 'display',
+  //   coordinates: [[-400, -220], [-400, -110], [50, -110], [50, -220]]  
+  // },
+  {
+    id: 'apple-accesory',
+    name: 'G',
+    type: 'entrance',
+    coordinates: [[-450, 250], [-450, 220], [50, 220], [50, 250]]  
+  },
+  // {
+  //   id: 'samsung-wallbay',
+  //   name: 'H',
+  //   type: 'entrance',
+  //   coordinates: [[50, 250], [50, 220], [500, 220], [500, 250]]  
+  // },
+  // {
+  //   id: 'Cashier',
+  //   name: 'I',
+  //   type: 'shelf',
+  //   coordinates: [[460, -160], [460, -60], [500, -60], [500, -160]]  
+  // },
+  // {
+  //   id: 'samsung-tv',
+  //   name: 'J',
+  //   type: 'shelf',
+  //   coordinates: [[460, -10], [460, 220], [500, 220], [500, -10]]  
+  // },
+  // {
+  //   id:'tv-monitor',
+  //   name: 'K',
+  //   type: 'display',
+  //   coordinates: [[-400, -110], [-400, 30], [-210, 30], [-210, -110]]
+  // },
+  {
+    id:'wall',
+    name: 'L',
+    type: 'counter',
+    coordinates: [[-200, -110], [-200, 30], [-170, 30], [-170, -110]]
+  },
+  {
+    id:'pc-notebook',
+    name: 'M',
+    type: 'display',
+    coordinates: [[-160, -100], [-160, 0], [50, 0], [50, -100]]
+  },
+  // {
+  //   id:'oppo',
+  //   name: 'N',
+  //   type: 'display',
+  //   coordinates: [[-140, 10], [-140, 70], [30, 70], [30, 10]]
+  // },
+  // {
+  //   id:'apple-tomb-table',
+  //   name: 'O',
+  //   type: 'shelf',
+  //   coordinates: [[-360, 100], [-360, 160], [-170, 160], [-170, 100]]
+  // },
+  // {
+  //   id:'samsung-smart1',
+  //   name: 'P',
+  //   type: 'entrance',
+  //   coordinates:[[150,80],[150,180],[200,180],[200,80]]
+  // },
+  {
+    id:'samsung-smart2',
+    name: 'Q',
+    type: 'entrance',
+    coordinates:[[250,80],[250,180],[300,180],[300,80]]
+  },
+  {
+    id:'best-denki',
+    name: 'R',
+    type: 'shelf',
+    coordinates:[[120,-110],[120,40],[220,40],[220,-110]]
+  },
+  {
+    id:'samsung-oled',
+    name: 'S',
+    type: 'shelf',
+    coordinates:[[260,-50],[260,20],[390,20],[390,-50]]
+  }
+];
 // This function will add store structures to the visualization
 function addStoreStructures(vizElement) {
   // Get the dimensions of the visualization area
@@ -699,129 +811,7 @@ function addStoreStructures(vizElement) {
   
   // Define store structures with coordinates
   // Each structure has: id, name, coordinates (array of [x, z] points in -100 to 100 range)
-  const structures = [
-    // {
-    //   id: 'shelf-1',
-    //   name: 'A',
-    //   type: 'shelf',
-    //   coordinates: [[-500,-250], [-500, 250], [500, 250], [500, -250]]  
-    // },
-    {
-      id:'origin',
-      name: 'o',
-      type: 'entrance',
-      coordinates: [[0,0], [0,0], [0, 0], [0, 0]]
 
-    },
-    {
-      id: 'bottom-entry',
-      name: 'B',
-      type: 'counter',
-      coordinates:  [[-500, -250], [-500, -150], [-450, -150], [-450, -250]] 
-    },
-    {
-      id: 'top-entry',
-      name: 'C',
-      type: 'counter',
-      coordinates: [[-500, 250], [-500, 150], [-450, 150], [-450, 250]] 
-    },
-    {
-      id: 'wearables',
-      name: 'D',
-      type: 'entrance',
-      coordinates: [[-450, -250], [-450, -220], [50, -220], [50, -250]] 
-    },
-    {
-      id: 'home appliance',
-      name: 'E',
-      type: 'entrance',
-      coordinates:   [[50, -250], [50, -190], [500, -190], [500, -250]]  
-    },
-    {
-      id: 'PC-notebook',
-      name: 'F',
-      type: 'display',
-      coordinates: [[-400, -220], [-400, -110], [50, -110], [50, -220]]  
-    },
-    {
-      id: 'apple-accesory',
-      name: 'G',
-      type: 'entrance',
-      coordinates: [[-450, 250], [-450, 220], [50, 220], [50, 250]]  
-    },
-    {
-      id: 'samsung-wallbay',
-      name: 'H',
-      type: 'entrance',
-      coordinates: [[50, 250], [50, 220], [500, 220], [500, 250]]  
-    },
-    {
-      id: 'Cashier',
-      name: 'I',
-      type: 'shelf',
-      coordinates: [[460, -160], [460, -60], [500, -60], [500, -160]]  
-    },
-    {
-      id: 'samsung-tv',
-      name: 'J',
-      type: 'shelf',
-      coordinates: [[460, -10], [460, 220], [500, 220], [500, -10]]  
-    },
-    {
-      id:'tv-monitor',
-      name: 'K',
-      type: 'display',
-      coordinates: [[-400, -110], [-400, 30], [-210, 30], [-210, -110]]
-    },
-    {
-      id:'wall',
-      name: 'L',
-      type: 'counter',
-      coordinates: [[-200, -110], [-200, 30], [-170, 30], [-170, -110]]
-    },
-    {
-      id:'pc-notebook',
-      name: 'M',
-      type: 'display',
-      coordinates: [[-160, -100], [-160, 0], [50, 0], [50, -100]]
-    },
-    {
-      id:'oppo',
-      name: 'N',
-      type: 'display',
-      coordinates: [[-140, 10], [-140, 70], [30, 70], [30, 10]]
-    },
-    {
-      id:'apple-tomb-table',
-      name: 'O',
-      type: 'shelf',
-      coordinates: [[-360, 100], [-360, 160], [-170, 160], [-170, 100]]
-    },
-    {
-      id:'samsung-smart1',
-      name: 'P',
-      type: 'entrance',
-      coordinates:[[150,80],[150,180],[200,180],[200,80]]
-    },
-    {
-      id:'samsung-smart2',
-      name: 'Q',
-      type: 'entrance',
-      coordinates:[[250,80],[250,180],[300,180],[300,80]]
-    },
-    {
-      id:'best-denki',
-      name: 'R',
-      type: 'shelf',
-      coordinates:[[120,-110],[120,40],[220,40],[220,-110]]
-    },
-    {
-      id:'samsung-oled',
-      name: 'S',
-      type: 'shelf',
-      coordinates:[[260,-50],[260,20],[390,20],[390,-50]]
-    }
-  ];
   
   // Create structures on the visualization
   structures.forEach(structure => {
@@ -892,7 +882,147 @@ function addStoreStructures(vizElement) {
   // Add a legend
   // addLegend(vizElement);
 }
+function find_nearest(x, z,diagonal,vizElement) {
+  x=(x/100)*500;
+  z=(z/100)*250;
+  console.log(x,z);
+  if (!structures || structures.length === 0) {
+    console.error("No structures found!");
+    return;
+}
 
+let nearestQuadrilateral = null;
+let minDistance = Infinity;
+
+  // Find the nearest quadrilateral based on Euclidean distance
+  // structures.forEach(structure => {
+  //   structure.coordinates.forEach(coord => {
+  //     const [x1, z1] = coord;
+  //     const distance = Math.sqrt((x1 - x) ** 2 + (z1 - z) ** 2);
+  //     if (distance < minDistance) {
+  //       minDistance = distance;
+  //       nearestStructure = structure;
+  //     }
+  //   });
+  // });
+//   structures.forEach(structure => {
+//     const centroid = getPolygonCenter(structure.coordinates);
+//     const distance = Math.sqrt((centroid[0] - x) ** 2 + (centroid[1] - z) ** 2);
+
+//     if (distance < minDistance) {
+//         minDistance = distance;
+//         nearestStructure = structure;
+//     }
+// });
+structures.forEach(structure => {
+  let minEdgeDistance = Infinity;
+
+  for (let i = 0; i < structure.coordinates.length; i++) {
+      // Get two consecutive points forming an edge
+      let [x1, z1] = structure.coordinates[i];
+      let [x2, z2] = structure.coordinates[(i + 1) % 4];
+
+      // Calculate perpendicular distance from (x, z) to this edge
+      let distance = getPerpendicularDistance(x, z, x1, z1, x2, z2);
+
+      if (distance < minEdgeDistance) {
+          minEdgeDistance = distance;
+      }
+  }
+
+  // Update nearest quadrilateral based on the smallest perpendicular distance
+  if (minEdgeDistance < minDistance) {
+      minDistance = minEdgeDistance;
+      nearestStructure = structure;
+  }
+});
+
+  if (!nearestStructure) {
+    console.error("No nearby quadrilateral found.");
+    return null;
+  }
+
+  console.log("Nearest Structure:", nearestStructure.name);
+
+  // Calculate square side from diagonal using Pythagoras' theorem
+  const squareSide = diagonal / Math.sqrt(2);
+
+  // Find a position inside the quadrilateral for the square
+  const center = getPolygonCenter(nearestStructure.coordinates);
+  const squareCoordinates = [
+    [center[0] - squareSide / 2, center[1] - squareSide / 2], // Top-left
+    [center[0] + squareSide / 2, center[1] - squareSide / 2], // Top-right
+    [center[0] + squareSide / 2, center[1] + squareSide / 2], // Bottom-right
+    [center[0] - squareSide / 2, center[1] + squareSide / 2]  // Bottom-left
+  ];
+
+  console.log("Square Coordinates:", squareCoordinates);
+  createSquareVisualization(squareCoordinates, vizElement);
+  return { nearestStructure, squareCoordinates };
+
+}
+function getPerpendicularDistance(x, z, x1, z1, x2, z2) {
+  let A = z2 - z1;
+  let B = -(x2 - x1);
+  let C = x2 * z1 - z2 * x1;
+
+  let numerator = Math.abs(A * x + B * z + C);
+  let denominator = Math.sqrt(A ** 2 + B ** 2);
+  let perpendicularDistance = numerator / denominator;
+
+  // Find the projection point (xp, zp) on the line
+  let t = ((x - x1) * (x2 - x1) + (z - z1) * (z2 - z1)) / ((x2 - x1) ** 2 + (z2 - z1) ** 2);
+
+  if (t >= 0 && t <= 1) {
+      // The perpendicular falls inside the segment, return the perpendicular distance
+      return perpendicularDistance;
+  } else {
+      // The perpendicular falls outside, return the minimum distance to an endpoint
+      let distanceToStart = Math.sqrt((x - x1) ** 2 + (z - z1) ** 2);
+      let distanceToEnd = Math.sqrt((x - x2) ** 2 + (z - z2) ** 2);
+      return Math.min(distanceToStart, distanceToEnd);
+  }
+}
+function createSquareVisualization(squareCoordinates, vizElement) {
+  const centerX = vizElement.offsetWidth / 2;
+  const centerZ = vizElement.offsetHeight / 2;
+
+  // Create an SVG element
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  svg.style.position = "absolute";
+  svg.style.top = "0";
+  svg.style.left = "0";
+  svg.style.pointerEvents = "none";
+
+  // Create a path element for the square
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  // Build the path data
+  let pathData = "";
+  squareCoordinates.forEach((coord, index) => {
+    const screenX = centerX + coord[0];
+    const screenZ = centerZ + coord[1];
+
+    if (index === 0) {
+      pathData += `M ${screenX} ${screenZ} `;
+    } else {
+      pathData += `L ${screenX} ${screenZ} `;
+    }
+  });
+  pathData += "Z"; // Close the path
+
+  // Set path attributes for styling
+  path.setAttribute("d", pathData);
+  path.setAttribute("fill", "rgba(255, 0, 0, 0.5)"); // Semi-transparent red
+  path.setAttribute("stroke", "#000");
+  path.setAttribute("stroke-width", "2");
+
+  // Append elements to the DOM
+  svg.appendChild(path);
+  vizElement.appendChild(svg);
+}
 // Helper function to get the center of a polygon
 function getPolygonCenter(coords) {
   let sumX = 0;
@@ -909,11 +1039,11 @@ function getPolygonCenter(coords) {
 // Helper function to get structure color based on type
 function getStructureColor(type) {
   switch(type) {
-    case 'shelf': return '#8BC34A';
-    case 'counter': return '#FF9800';
-    case 'entrance': return '#2196F3';
-    case 'display': return '#E91E63';
-    default: return '#9E9E9E';
+    case 'shelf': return '#EDEEFF';
+    case 'counter': return '#EDEEFF';
+    case 'entrance': return '#EDEEFF';
+    case 'display': return '#EDEEFF';
+    default: return '#EDEEFF';
   }
 }
 
