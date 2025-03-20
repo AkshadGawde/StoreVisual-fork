@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Set initial scale to 0 for animation
     pointElement.style.transform = "translate(-50%, -50%) scale(0)";
-    // pointElement.style.backgroundColor='#CACEFF'
+    pointElement.style.backgroundColor='red'
 
 
     // If photo was captured at this point, add the photo-captured class
@@ -351,8 +351,14 @@ document.addEventListener("DOMContentLoaded", () => {
       let trial=find_nearest(coord.x,coord.z,diagonal=2,vizElement);
       console.log(trial);
       pointElement.classList.add("photo-captured");
-      pointElement.style.color='red'
       pointElement.style.backgroundImage = "url('/images/image.png')";
+      pointElement.style.width = "30px"; // Increase width
+      pointElement.style.height = "30px"; // Increase height
+      pointElement.style.backgroundSize = "cover"; // Ensures the image covers the div
+      pointElement.style.backgroundRepeat = "no-repeat"; // Prevents repeating
+      pointElement.style.backgroundPosition = "center"; // Centers the image
+      pointElement.style.borderRadius = "50%"; // Optional: Makes it circular
+
       // pointElement.style.zIndex = 5;
 
       // Add click event to show the corresponding image
@@ -560,33 +566,100 @@ document.addEventListener("DOMContentLoaded", () => {
   // Create info pairs (label + value)
   const infoPairs = [
     { label: "Brand", value: parsedInfo.brand },
-    { label: "Visual Merchandise", value: parsedInfo.visual },
+    { label: "Merchandise", value: parsedInfo.visual },
     { label: "Product", value: parsedInfo.product },
     { label: "Measurement", value: parsedInfo.measurement || "N/A" }
   ];
-  
-  // Add each pair to the grid
-  infoPairs.forEach(pair => {
-    const label = document.createElement("div");
-    label.className = "card-info-label";
-    label.textContent = pair.label;
-    
-    const value = document.createElement("div");
-    value.className = "card-info-value";
-    value.textContent = pair.value;
-    
-    infoGrid.appendChild(label);
-    infoGrid.appendChild(value);
-  });
+  // Create container for labels (headings)
+const labelsRow = document.createElement("div");
+labelsRow.className = "card-info-row labels";
+
+// Create container for values
+const valuesRow = document.createElement("div");
+valuesRow.className = "card-info-row values";
+
+// Add each pair to the respective row
+infoPairs.forEach(pair => {
+  const label = document.createElement("div");
+  label.className = "card-info-label";
+  label.textContent = pair.label;
+  labelsRow.appendChild(label);
+
+  const value = document.createElement("div");
+  value.className = "card-info-value";
+  value.textContent = pair.value;
+  valuesRow.appendChild(value);
+});
+
+ 
   
   // Create button
   const button = document.createElement("button");
   button.className = "card-button";
   button.textContent = "View Full Report";
+
+  const toggle = document.createElement("div");
+  toggle.className = "card-toggle";
+  toggle.innerHTML = `See More <span class="arrow">▼</span>`;
+  
+  // Extra content (initially hidden)
+  const extraContent = document.createElement("div");
+  extraContent.className = "card-extra-content";
+  extraContent.innerHTML = `
+  `;
+  extraContent.style.display = "none"; // Initially hidden
+  
+  if (imageData.metadata && imageData.metadata.bannerData) {
+    // If banner data exists in metadata, use it
+    extraContent.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
+  } else {
+    // Make a placeholder and update it asynchronously
+    extraContent.innerHTML = `<i>AI Generated Summary: Loading...</i>`;
+    
+  fetch("/api/banner_data", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      imageUrl: imageData.url,
+      brand: parsedInfo.brand,
+      position: "Auto-detected",
+      type: parsedInfo.product,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data && data.data) {
+        extraContent.innerHTML = `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching banner data:", error);
+      extraContent.innerHTML = `<i>AI Generated Summary: Could not load data</i>`;
+    });
+  }
+
+  // Toggle event
+  toggle.addEventListener("click", () => {
+      const arrow = toggle.querySelector(".arrow");
+      if (extraContent.style.display === "none") {
+          extraContent.style.display = "block"; // Show content
+          toggle.innerHTML = `See Less <span class="arrow">▲</span>`; // Change text and arrow
+      } else {
+          extraContent.style.display = "none"; // Hide content
+          toggle.innerHTML = `See More <span class="arrow">▼</span>`; // Reset text and arrow
+      }
+  });
+
   
   // Add all elements to the card
+  infoGrid.appendChild(labelsRow);
+  infoGrid.appendChild(valuesRow);
   content.appendChild(infoGrid);
-  content.appendChild(button);
+  content.appendChild(toggle);
+  content.appendChild(extraContent);
+  // content.appendChild(button);
   card.appendChild(imgContainer);
   card.appendChild(content);
   
@@ -1039,11 +1112,11 @@ function getPolygonCenter(coords) {
 // Helper function to get structure color based on type
 function getStructureColor(type) {
   switch(type) {
-    case 'shelf': return '#EDEEFF';
-    case 'counter': return '#EDEEFF';
-    case 'entrance': return '#EDEEFF';
-    case 'display': return '#EDEEFF';
-    default: return '#EDEEFF';
+    case 'shelf': return '#E6E7F8';
+    case 'counter': return '#E6E7F8';
+    case 'entrance': return '#E6E7F8';
+    case 'display': return '#E6E7F8';
+    default: return '#E6E7F8';
   }
 }
 

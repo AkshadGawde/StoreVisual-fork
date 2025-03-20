@@ -20,7 +20,7 @@
             width: 100%;
             height: 100vh;
             background: white;
-            padding: 20px;
+            padding: 0px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
@@ -35,28 +35,46 @@
         }
 
         .control-panel {
-            padding: 15px;
-            background-color: #d1c4e9;
+            padding: 10px;
+            background-color:#EFF4FE;
             border-radius: 10px;
             margin-bottom: 10px;
         }
 
         .info-display {
             display: flex;
-            margin-top: 5px;
+            align-items: center;
+            
+            font-size: 14px;
+            font-weight: bold;
+            padding-top: 5px;
+            padding-bottom:5px;
+        }
+
+        .distance-box {
+            background-color: #f0f1ff;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .arrow {
+            font-size: 12px;
+            color: #333;
+            margin-left: 8px;
         }
 
         .control-panel button {
             margin-right: 10px;
             padding: 10px 20px;
-            background-color: #7e57c2;
+            background-color: #717AEA;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             position: relative;
-            overflow: hidden;
         }
 
         .control-panel button.toggle {
@@ -65,7 +83,7 @@
         }
 
         .control-panel button.toggle.active {
-            background-color: #4caf50;
+            background-color: #717AEA;
         }
 
         .control-panel button.clear {
@@ -77,7 +95,7 @@
         }
 
         .control-panel button:hover {
-            background-color: #673ab7;
+            background-color: #717AEA;
         }
 
         .control-panel button.button-pressed {
@@ -149,18 +167,21 @@
 .right-container {
     width: 30%;
     min-width: 300px;
+    
+    overflow: auto;
 }
 
 #imageContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 10px;
     gap: 15px;
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
     flex: 1;
+    flex-wrap: wrap;
 }
 
 /* Modern Card Design */
@@ -172,7 +193,7 @@
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 340px;
+    
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -199,27 +220,37 @@
 
 .card-content {
     padding: 15px;
+    color: #717AEA;
 }
-
-.card-info {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 8px 12px;
-    margin-bottom: 15px;
-}
-
 .card-info-label {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
+    color: black; /* Heading in black */
+    flex: 1;
+    text-align: left;
 }
 
 .card-info-value {
-    font-size: 14px;
-    color: #333;
-    font-weight: 600;
-    text-align: right;
+    font-weight: bold;
+
+    color:#717AEA; /* Values in blue */
+    flex: 1;
+    text-align: left;
 }
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+  }
+  
+  .card-info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+
+
 
 .card-button {
     background-color: #6c63ff;
@@ -232,10 +263,37 @@
     transition: background 0.3s ease;
     width: 100%;
     font-weight: 500;
+    margin-top: 5px;
 }
 
 .card-button:hover {
     background-color: #5548d9;
+}
+.card-toggle {
+    color: #6c7ff2;  /* Blue text */
+    cursor: pointer;
+    text-align: center;
+    
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.card-toggle .arrow {
+    transition: transform 0.3s ease-in-out;
+}
+
+.card-extra-content {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
 .no-images-message {
@@ -374,16 +432,24 @@
 
 <body>
     <div class="container">
-        <h1>Store Visit Tracking</h1>
-        <div class="control-panel">
-            <div class="info-display">
-                <span id="distance" class="distance-display">Distance: 0.00</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #EFF4FE; padding: 5px;padding-left:15px; width: 100%;">
+            <div style="display: flex; align-items: center;">
+                <img src="./images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
+                <h1 style="margin: 0;">Store Visit Tracking</h1>
             </div>
-            <div style="margin-top: 10px;">
-                <button id="testButton" type="button">Start</button>
-                <button id="clearButton" type="button" class="clear">Clear All</button>
-                <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button>
+            <div class="control-panel" style="text-align: right;">
+                <div>
+                    <button id="testButton" type="button">Start</button>
+                    <button id="clearButton" type="button" class="clear">Clear All</button>
+                    <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button>
+                </div>
             </div>
+        </div>
+        <div class="info-display">
+            <span class="distance-box">
+                <span id="distance">Distance: 0.00 Meters</span>
+                <span class="arrow">◀</span>
+            </span>
         </div>
         <div class="layout-container">
             <div class="left-container">
