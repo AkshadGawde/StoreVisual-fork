@@ -124,8 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 200);
 
     // Generate random coordinates between -100 and 100
-    const x = Math.round((Math.random() * 200 - 100) * 100) / 100;
-    const z = Math.round((Math.random() * 200 - 100) * 100) / 100;
+    let x = Math.round((Math.random() * 200 - 100) * 100) / 100;
+    let z = Math.round((Math.random() * 200 - 100) * 100) / 100;
+    // x=(x/100)*500;
+    // z=(z/100)*250;
 
     // Increase total distance by a small random amount
     totalDistance += Math.random() * 0.1;
@@ -309,12 +311,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderCoordinate(coord) {
     renderPoint(coord);
   }
+  function plotO(){
+      const pointElement = document.createElement("div");
+  pointElement.className = "point";
+  // pointElement.dataset.timestamp = coord.timestamp;
+
+  // Set initial scale to 0 for animation
+  pointElement.style.transform = "translate(-50%, -50%) scale(0)";
+  pointElement.style.left = `${centerX}px`;
+  pointElement.style.top = `${centerZ}px`;
+  vizElement.appendChild(pointElement);
+  }
 
   function renderPoint(coord) {
     // Transform coordinates from -100,100 range to screen position
     // (0,0) at center of screen
-    const screenX = centerX + (coord.x * centerX) / 100;
-    const screenZ = centerZ + (coord.z * centerZ) / 100;
+    plotO();
+    console.log(coord.x,coord.z);
+    
+    console.log(centerX,centerZ);
+    let screenX = centerX + (coord.x * centerX) / 100;
+    let screenZ = centerZ + (coord.z * centerZ) / 100;
+    
+    console.log(screenX,screenZ);
 
     // Create point
     const pointElement = document.createElement("div");
@@ -665,4 +684,362 @@ document.addEventListener("DOMContentLoaded", function () {
       ripple.remove();
     });
   }
+});
+
+
+// This function will add store structures to the visualization
+function addStoreStructures(vizElement) {
+  // Get the dimensions of the visualization area
+  const vizWidth = vizElement.offsetWidth;
+  const vizHeight = vizElement.offsetHeight;
+  
+  // Calculate center point
+  const centerX = vizWidth / 2;
+  const centerZ = vizHeight / 2;
+  
+  // Define store structures with coordinates
+  // Each structure has: id, name, coordinates (array of [x, z] points in -100 to 100 range)
+  const structures = [
+    // {
+    //   id: 'shelf-1',
+    //   name: 'A',
+    //   type: 'shelf',
+    //   coordinates: [[-500,-250], [-500, 250], [500, 250], [500, -250]]  
+    // },
+    {
+      id:'origin',
+      name: 'o',
+      type: 'entrance',
+      coordinates: [[0,0], [0,0], [0, 0], [0, 0]]
+
+    },
+    {
+      id: 'bottom-entry',
+      name: 'B',
+      type: 'counter',
+      coordinates:  [[-500, -250], [-500, -150], [-450, -150], [-450, -250]] 
+    },
+    {
+      id: 'top-entry',
+      name: 'C',
+      type: 'counter',
+      coordinates: [[-500, 250], [-500, 150], [-450, 150], [-450, 250]] 
+    },
+    {
+      id: 'wearables',
+      name: 'D',
+      type: 'entrance',
+      coordinates: [[-450, -250], [-450, -220], [50, -220], [50, -250]] 
+    },
+    {
+      id: 'home appliance',
+      name: 'E',
+      type: 'entrance',
+      coordinates:   [[50, -250], [50, -190], [500, -190], [500, -250]]  
+    },
+    {
+      id: 'PC-notebook',
+      name: 'F',
+      type: 'display',
+      coordinates: [[-400, -220], [-400, -110], [50, -110], [50, -220]]  
+    },
+    {
+      id: 'apple-accesory',
+      name: 'G',
+      type: 'entrance',
+      coordinates: [[-450, 250], [-450, 220], [50, 220], [50, 250]]  
+    },
+    {
+      id: 'samsung-wallbay',
+      name: 'H',
+      type: 'entrance',
+      coordinates: [[50, 250], [50, 220], [500, 220], [500, 250]]  
+    },
+    {
+      id: 'Cashier',
+      name: 'I',
+      type: 'shelf',
+      coordinates: [[460, -160], [460, -60], [500, -60], [500, -160]]  
+    },
+    {
+      id: 'samsung-tv',
+      name: 'J',
+      type: 'shelf',
+      coordinates: [[460, -10], [460, 220], [500, 220], [500, -10]]  
+    },
+    {
+      id:'tv-monitor',
+      name: 'K',
+      type: 'display',
+      coordinates: [[-400, -110], [-400, 30], [-210, 30], [-210, -110]]
+    },
+    {
+      id:'wall',
+      name: 'L',
+      type: 'counter',
+      coordinates: [[-200, -110], [-200, 30], [-170, 30], [-170, -110]]
+    },
+    {
+      id:'pc-notebook',
+      name: 'M',
+      type: 'display',
+      coordinates: [[-160, -100], [-160, 0], [50, 0], [50, -100]]
+    },
+    {
+      id:'oppo',
+      name: 'N',
+      type: 'display',
+      coordinates: [[-140, 10], [-140, 70], [30, 70], [30, 10]]
+    },
+    {
+      id:'apple-tomb-table',
+      name: 'O',
+      type: 'shelf',
+      coordinates: [[-360, 100], [-360, 160], [-170, 160], [-170, 100]]
+    },
+    {
+      id:'samsung-smart1',
+      name: 'P',
+      type: 'entrance',
+      coordinates:[[150,80],[150,180],[200,180],[200,80]]
+    },
+    {
+      id:'samsung-smart2',
+      name: 'Q',
+      type: 'entrance',
+      coordinates:[[250,80],[250,180],[300,180],[300,80]]
+    },
+    {
+      id:'best-denki',
+      name: 'R',
+      type: 'shelf',
+      coordinates:[[120,-110],[120,40],[220,40],[220,-110]]
+    },
+    {
+      id:'samsung-oled',
+      name: 'S',
+      type: 'shelf',
+      coordinates:[[260,-50],[260,20],[390,20],[390,-50]]
+    }
+  ];
+  
+  // Create structures on the visualization
+  structures.forEach(structure => {
+    // Create a polygon for each structure
+    const polygon = document.createElement('div');
+    polygon.id = structure.id;
+    polygon.className = `structure ${structure.type}`;
+    polygon.title = structure.name;
+    
+    // Create SVG element for the polygon
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.pointerEvents = 'none';
+    
+    // Create the polygon path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    
+    // Build the path data
+    let pathData = '';
+    structure.coordinates.forEach((coord, index) => {
+      // Transform coordinates from -100,100 range to screen position
+      const screenX = centerX + coord[0];
+      const screenZ = centerZ + coord[1];
+      
+      if (index === 0) {
+        pathData += `M ${screenX} ${screenZ} `;
+      } else {
+        pathData += `L ${screenX} ${screenZ} `;
+      }
+    });
+    pathData += 'Z'; // Close the path
+    
+    // Set path attributes
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', getStructureColor(structure.type));
+    path.setAttribute('stroke', '#000');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill-opacity', '0.5');
+    
+    // Add text label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    
+    // Calculate center of the structure for text positioning
+    const centerCoord = getPolygonCenter(structure.coordinates);
+    const textX = centerX + centerCoord[0] 
+    const textY = centerZ + centerCoord[1]
+    
+    text.setAttribute('x', textX);
+    text.setAttribute('y', textY);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('font-size', '12px');
+    text.setAttribute('fill', '#000');
+    text.setAttribute('font-weight', 'bold');
+    text.textContent = structure.name;
+    
+    // Add elements to the DOM
+    svg.appendChild(path);
+    svg.appendChild(text);
+    polygon.appendChild(svg);
+    vizElement.appendChild(polygon);
+  });
+  
+  // Add a legend
+  // addLegend(vizElement);
+}
+
+// Helper function to get the center of a polygon
+function getPolygonCenter(coords) {
+  let sumX = 0;
+  let sumZ = 0;
+  
+  coords.forEach(coord => {
+    sumX += coord[0];
+    sumZ += coord[1];
+  });
+  
+  return [sumX / coords.length, sumZ / coords.length];
+}
+
+// Helper function to get structure color based on type
+function getStructureColor(type) {
+  switch(type) {
+    case 'shelf': return '#8BC34A';
+    case 'counter': return '#FF9800';
+    case 'entrance': return '#2196F3';
+    case 'display': return '#E91E63';
+    default: return '#9E9E9E';
+  }
+}
+
+// Add a legend to explain the structure types
+function addLegend(vizElement) {
+  const legend = document.createElement('div');
+  legend.className = 'legend';
+  legend.style.position = 'absolute';
+  legend.style.bottom = '10px';
+  legend.style.right = '10px';
+  legend.style.background = 'rgba(255,255,255,0.8)';
+  legend.style.padding = '10px';
+  legend.style.borderRadius = '5px';
+  legend.style.border = '1px solid #ccc';
+  
+  const types = [
+    { type: 'shelf', name: 'Shelves' },
+    { type: 'counter', name: 'Counters' },
+    { type: 'entrance', name: 'Entrances' },
+    { type: 'display', name: 'Displays' }
+  ];
+  
+  types.forEach(item => {
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.marginBottom = '5px';
+    
+    const color = document.createElement('div');
+    color.style.width = '15px';
+    color.style.height = '15px';
+    color.style.backgroundColor = getStructureColor(item.type);
+    color.style.marginRight = '5px';
+    
+    const text = document.createElement('span');
+    text.textContent = item.name;
+    
+    row.appendChild(color);
+    row.appendChild(text);
+    legend.appendChild(row);
+  });
+  
+  vizElement.appendChild(legend);
+}
+
+// Add CSS for the structures
+function addStructureStyles() {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    .structure {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+    
+    /* Add hover effect */
+    .structure svg path:hover {
+      fill-opacity: 0.7;
+      cursor: pointer;
+    }
+  `;
+  document.head.appendChild(styleElement);
+}
+
+// Add button to toggle structures visibility
+function addStructureToggle() {
+  const controlPanel = document.querySelector('.control-panel');
+  const div = document.querySelector('.control-panel div:last-child');
+  
+  const structureToggle = document.createElement('button');
+  structureToggle.id = 'structureToggle';
+  structureToggle.type = 'button';
+  structureToggle.className = 'toggle';
+  structureToggle.textContent = 'Structures: OFF';
+  
+  div.appendChild(structureToggle);
+  
+  // Add event listener
+  structureToggle.addEventListener('click', function(event) {
+    // Toggle structures visibility
+    const structures = document.querySelectorAll('.structure');
+    const isVisible = structureToggle.classList.contains('active');
+    
+    structures.forEach(structure => {
+      structure.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Update button state
+    structureToggle.textContent = isVisible ? 'Structures: OFF' : 'Structures: ON';
+    structureToggle.classList.toggle('active');
+    
+    // Add ripple effect
+    createRipple(event);
+  });
+}
+
+// Function to initialize the store layout visualization
+function initializeStoreLayout() {
+  const vizElement = document.getElementById('visualization');
+  
+  if (!vizElement) {
+    console.error('Visualization element not found!');
+    return;
+  }
+  
+  // Add CSS for structures
+  addStructureStyles();
+  
+  // Add structures to the visualization
+  addStoreStructures(vizElement);
+  
+  // Add toggle button
+  addStructureToggle();
+  
+  // Initially hide structures
+  const structures = document.querySelectorAll('.structure');
+  structures.forEach(structure => {
+    structure.style.display = 'none';
+  });
+}
+
+// Call the initialization function after the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait a bit to ensure the visualization element is ready
+  setTimeout(initializeStoreLayout, 500);
 });

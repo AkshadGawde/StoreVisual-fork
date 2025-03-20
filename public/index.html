@@ -291,6 +291,44 @@
         #imageContainer::-webkit-scrollbar-thumb:hover {
             background: #6a4aaa;
         }
+
+        /* Store structures styling */
+.structure svg path {
+    transition: fill-opacity 0.3s ease;
+  }
+  
+  .structure svg text {
+    pointer-events: none; /* Prevents text from interfering with hover effects */
+    text-shadow: 0 0 3px white; /* Makes text more readable */
+  }
+  
+  /* Type-specific hover effects */
+  .structure.shelf svg path:hover {
+    fill: #7CB342;
+  }
+  
+  .structure.counter svg path:hover {
+    fill: #F57C00;
+  }
+  
+  .structure.entrance svg path:hover {
+    fill: #1976D2;
+  }
+  
+  .structure.display svg path:hover {
+    fill: #C2185B;
+  }
+  
+  /* Legend styling */
+  .legend {
+    font-size: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 20;
+  }
+  
+  .legend div span {
+    font-family: Arial, sans-serif;
+  }
     </style>
 </head>
 
