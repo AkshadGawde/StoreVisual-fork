@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Set initial scale to 0 for animation
     pointElement.style.transform = "translate(-50%, -50%) scale(0)";
-    pointElement.style.backgroundColor='red'
+    pointElement.style.backgroundColor='#717AEA'
 
 
     // If photo was captured at this point, add the photo-captured class
