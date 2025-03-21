@@ -327,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Transform coordinates from -100,100 range to screen position
     // (0,0) at center of screen
     // plotO();
+    console.log(coord)
     console.log(coord.x,coord.z);
     
     console.log(centerX,centerZ);
@@ -348,7 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // If photo was captured at this point, add the photo-captured class
     if (coord.photoCapture === 1) {
       const vizElement = document.getElementById("visualization");
-      let trial=find_nearest(coord.x,coord.z,diagonal=2,vizElement);
+      let trial=find_nearest(coord.x,coord.z,coord.distance,vizElement);
       console.log(trial);
       pointElement.classList.add("photo-captured");
       pointElement.style.backgroundImage = "url('/images/image.png')";
@@ -1055,9 +1056,10 @@ structures.forEach(structure => {
   }
 
   console.log("Nearest Structure:", nearestStructure.name);
-
+  console.log("diagonal:",diagonal);
   // Calculate square side from diagonal using Pythagoras' theorem
-  const squareSide = diagonal / Math.sqrt(2);
+  const squareSide = diagonal *100/ Math.sqrt(2);
+  console.log("Square Side:", squareSide);
 
   // Find a position inside the quadrilateral for the square
   const center = getPolygonCenter(nearestStructure.coordinates);
