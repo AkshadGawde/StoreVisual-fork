@@ -163,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FApple_Poster_Phone.png?alt=media&token=7f75f533-e249-44e3-8056-adca5caef03d",
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_Display_Tablet.png?alt=media&token=12345678",
             "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FLGE_Banner_TV.png?alt=media&token=87654321",
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_DummyDevice_tablet_0.5329772.png?alt=media&token=f71062c0-1086-4ec5-b4a5-bbd17d7b329f"
           ];
 
           const imageUrl =
@@ -508,22 +509,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
+ // Function to fetch banner data from the API
   async function fetchBannerData(imageUrl) {
     try {
-      const response = await fetch("/api/banner_data", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Find the banner data for this image URL
-        const bannerData = data.find(item => item.imageUrl === imageUrl);
-        return bannerData || null;
-      } else {
-        console.error("Error fetching banner data:", response.statusText);
-        return null;
+      const response = await fetch("/api/banner_data");
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch banner data: ${response.statusText}`);
       }
+      
+      const allBannerData = await response.json();
+      
+      // Find the banner data for this specific image URL
+      const bannerData = allBannerData.find(item => item.imageUrl === imageUrl);
+      
+      return bannerData ? bannerData : null;
     } catch (error) {
       console.error("Error fetching banner data:", error);
       return null;
@@ -532,193 +532,215 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createCardWithImage(imageData) {
     const card = document.createElement("div");
-  card.className = "card";
-  card.dataset.timestamp = imageData.timestamp;
-  card.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
-
-  // Image container for centering
-  const imgContainer = document.createElement("div");
-  imgContainer.className = "card-image-container";
+    card.className = "card";
+    card.dataset.timestamp = imageData.timestamp;
+    card.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
   
-  // Image element
-  const img = document.createElement("img");
-  img.src = imageData.url;
-  img.alt = "Captured Image";
-  img.className = "card-image";
-  img.loading = "lazy";
-  img.onerror = function () {
-    this.src = "https://via.placeholder.com/340x180?text=Image+Load+Error";
-  };
-  
-  // Add image to its container
-  imgContainer.appendChild(img);
-  
-  // Content section
-  const content = document.createElement("div");
-  content.className = "card-content";
-  
-  // Info grid layout
-  const infoGrid = document.createElement("div");
-  infoGrid.className = "card-info";
-  
-  // Parse info from URL
-  const parsedInfo = parseImageUrl(imageData.url);
-  
-  // Create info pairs (label + value)
-  const infoPairs = [
-    { label: "Brand", value: parsedInfo.brand },
-    { label: "Merchandise", value: parsedInfo.visual },
-    { label: "Product", value: parsedInfo.product },
-    { label: "Measurement", value: parsedInfo.measurement || "N/A" }
-  ];
-  // Create container for labels (headings)
-const labelsRow = document.createElement("div");
-labelsRow.className = "card-info-row labels";
-
-// Create container for values
-const valuesRow = document.createElement("div");
-valuesRow.className = "card-info-row values";
-
-// Add each pair to the respective row
-infoPairs.forEach(pair => {
-  const label = document.createElement("div");
-  label.className = "card-info-label";
-  label.textContent = pair.label;
-  labelsRow.appendChild(label);
-
-  const value = document.createElement("div");
-  value.className = "card-info-value";
-  value.textContent = pair.value;
-  valuesRow.appendChild(value);
-});
-
- 
-  
-  // Create button
-  const button = document.createElement("button");
-  button.className = "card-button";
-  button.textContent = "View Full Report";
-
-  const toggle = document.createElement("div");
-  toggle.className = "card-toggle";
-  toggle.innerHTML = `See More <span class="arrow">▼</span>`;
-  
-  // Extra content (initially hidden)
-  const extraContent = document.createElement("div");
-  extraContent.className = "card-extra-content";
-  extraContent.innerHTML = `
-  `;
-  extraContent.style.display = "none"; // Initially hidden
-  
-  if (imageData.metadata && imageData.metadata.bannerData) {
-    // If banner data exists in metadata, use it
-    extraContent.innerHTML =
-    //  `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
-     `
-     <div class="extra-content-container">
-         <div class="extra-header">
-             <img src="./images/star.png" alt="Icon" class="extra-icon" style='' />
-             <span class="extra-title">AI Analysis</span>
-         </div>
-         <p class="extra-description">
-             Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
-         </p>
-         <p class="extra-details">
-             <strong>Brand:</strong> ${imageData.metadata.bannerData.brand || "N/A"} <br>
-             <strong>Position:</strong> ${imageData.metadata.bannerData.position || "N/A"} <br>
-             <strong>Type:</strong> ${imageData.metadata.bannerData.type || "N/A"}
-         </p>
-     </div>
- `;
-  
-    } else {
-    // Make a placeholder and update it asynchronously
-    extraContent.innerHTML = `<i>AI Generated Summary: Loading...</i>`;
+    // Image container for centering
+    const imgContainer = document.createElement("div");
+    imgContainer.className = "card-image-container";
     
-  fetch("/api/banner_data", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      imageUrl: imageData.url,
-      brand: parsedInfo.brand,
-      position: "Auto-detected",
-      type: parsedInfo.product,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      // if (data && data.data) {
-      //   extraContent.innerHTML = 
-      //   `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
-      // }
-      if (data && data.data) {
-        extraContent.innerHTML = 
-        `
-        <div class="extra-content-container">
-            <div class="extra-header">
-                <img src="your-image.png" alt="Icon" class="extra-icon" />
-                <span class="extra-title">AI Analysis</span>
-            </div>
-            <p class="extra-description">
-                Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
-            </p>
-            <p class="extra-details">
-                <strong>Brand:</strong> ${data.data.brand || "N/A"} <br>
-                <strong>Position:</strong> ${data.data.position || "N/A"} <br>
-                <strong>Type:</strong> ${data.data.type || "N/A"}
-            </p>
-        </div>
-    `;
-
-         }
-    })
-    .catch((error) => {
-      console.error("Error fetching banner data:", error);
-      extraContent.innerHTML = `<i>AI Generated Summary: Could not load data</i>`;
+    // Image element
+    const img = document.createElement("img");
+    img.src = imageData.url;
+    img.alt = "Captured Image";
+    img.className = "card-image";
+    img.loading = "lazy";
+    img.onerror = function () {
+      this.src = "https://via.placeholder.com/340x180?text=Image+Load+Error";
+    };
+    
+    // Add image to its container
+    imgContainer.appendChild(img);
+    
+    // Content section
+    const content = document.createElement("div");
+    content.className = "card-content";
+    
+    // Info grid layout
+    const infoGrid = document.createElement("div");
+    infoGrid.className = "card-info";
+    
+    // Parse info from URL
+    const parsedInfo = parseImageUrl(imageData.url);
+    
+    // Create info pairs (label + value)
+    const infoPairs = [
+      { label: "Brand", value: parsedInfo.brand },
+      { label: "Merchandise", value: parsedInfo.visual },
+      { label: "Product", value: parsedInfo.product },
+      { label: "Measurement", value: parsedInfo.measurement || "N/A" }
+    ];
+    
+    // Create container for labels (headings)
+    const labelsRow = document.createElement("div");
+    labelsRow.className = "card-info-row labels";
+  
+    // Create container for values
+    const valuesRow = document.createElement("div");
+    valuesRow.className = "card-info-row values";
+  
+    // Add each pair to the respective row
+    infoPairs.forEach(pair => {
+      const label = document.createElement("div");
+      label.className = "card-info-label";
+      label.textContent = pair.label;
+      labelsRow.appendChild(label);
+  
+      const value = document.createElement("div");
+      value.className = "card-info-value";
+      value.textContent = pair.value;
+      valuesRow.appendChild(value);
     });
-  }
-
-  // Toggle event
-  toggle.addEventListener("click", () => {
-      const arrow = toggle.querySelector(".arrow");
+    
+    // Create toggle for extra content
+    const toggle = document.createElement("div");
+    toggle.className = "card-toggle";
+    toggle.innerHTML = `See More <span class="arrow">▼</span>`;
+    
+    // Extra content (initially hidden)
+    const extraContent = document.createElement("div");
+    extraContent.className = "card-extra-content";
+    extraContent.style.display = "none"; // Initially hidden
+    
+    // Loading placeholder for AI info
+    extraContent.innerHTML = `<div class="extra-content-container">
+      <div class="extra-header">
+        <img src="./images/star.png" alt="Icon" class="extra-icon" />
+        <span class="extra-title">AI Analysis</span>
+      </div>
+      <p class="extra-description">Loading AI analysis...</p>
+    </div>`;
+    
+    // Fetch banner data
+    fetch("/api/banner_data")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(allBannerData => {
+        // Find the banner data for this specific image
+        const bannerData = allBannerData.find(item => item.imageUrl === imageData.url);
+        
+        if (bannerData) {
+          // Update the extraContent with the banner data
+          extraContent.innerHTML = `
+            <div class="extra-content-container">
+              <div class="extra-header">
+                <img src="./images/star.png" alt="Icon" class="extra-icon" />
+                <span class="extra-title">AI Analysis</span>
+              </div>
+              <p class="extra-description">
+                Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
+              </p>
+              <p class="extra-details">
+                <strong>Brand:</strong> ${bannerData.brand || "N/A"} <br>
+                <strong>Position:</strong> ${bannerData.position || "N/A"} <br>
+                <strong>Type:</strong> ${bannerData.type || "N/A"}
+              </p>
+            </div>
+          `;
+        } else {
+          // If no data found, create it
+          fetch("/api/banner_data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              imageUrl: imageData.url,
+              brand: parsedInfo.brand,
+              position: "Auto-detected",
+              type: parsedInfo.product,
+            }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data && data.data) {
+                extraContent.innerHTML = `
+                  <div class="extra-content-container">
+                    <div class="extra-header">
+                      <img src="./images/star.png" alt="Icon" class="extra-icon" />
+                      <span class="extra-title">AI Analysis</span>
+                    </div>
+                    <p class="extra-description">
+                      Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
+                    </p>
+                    <p class="extra-details">
+                      <strong>Brand:</strong> ${data.data.brand || "N/A"} <br>
+                      <strong>Position:</strong> ${data.data.position || "N/A"} <br>
+                      <strong>Type:</strong> ${data.data.type || "N/A"}
+                    </p>
+                  </div>
+                `;
+              }
+            })
+            .catch(error => {
+              console.error("Error creating banner data:", error);
+              extraContent.innerHTML = `
+                <div class="extra-content-container">
+                  <div class="extra-header">
+                    <img src="./images/star.png" alt="Icon" class="extra-icon" />
+                    <span class="extra-title">AI Analysis</span>
+                  </div>
+                  <p class="extra-description">Could not load AI analysis.</p>
+                </div>
+              `;
+            });
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching banner data:", error);
+        // Set a fallback message
+        extraContent.innerHTML = `
+          <div class="extra-content-container">
+            <div class="extra-header">
+              <img src="./images/star.png" alt="Icon" class="extra-icon" />
+              <span class="extra-title">AI Analysis</span>
+            </div>
+            <p class="extra-description">Could not load AI analysis: ${error.message}</p>
+          </div>
+        `;
+      });
+  
+    // Toggle event
+    toggle.addEventListener("click", () => {
       if (extraContent.style.display === "none") {
-          extraContent.style.display = "block"; // Show content
-          toggle.innerHTML = `See Less <span class="arrow">▲</span>`; // Change text and arrow
+        extraContent.style.display = "block"; // Show content
+        toggle.innerHTML = `See Less <span class="arrow">▲</span>`; // Change text and arrow
       } else {
-          extraContent.style.display = "none"; // Hide content
-          toggle.innerHTML = `See More <span class="arrow">▼</span>`; // Reset text and arrow
+        extraContent.style.display = "none"; // Hide content
+        toggle.innerHTML = `See More <span class="arrow">▼</span>`; // Reset text and arrow
       }
-  });
-
-  
-  // Add all elements to the card
-  infoGrid.appendChild(labelsRow);
-  infoGrid.appendChild(valuesRow);
-  content.appendChild(infoGrid);
-  content.appendChild(toggle);
-  content.appendChild(extraContent);
-  // content.appendChild(button);
-  card.appendChild(imgContainer);
-  card.appendChild(content);
-  
-  // Add click event for the card
-  card.addEventListener("click", () => {
-    // Remove active class from all cards
-    document.querySelectorAll(".card").forEach((c) => c.classList.remove("active"));
+    });
     
-    // Add active class to clicked card
-    card.classList.add("active");
+    // Add all elements to the card
+    infoGrid.appendChild(labelsRow);
+    infoGrid.appendChild(valuesRow);
+    content.appendChild(infoGrid);
+    content.appendChild(toggle);
+    content.appendChild(extraContent);
+    card.appendChild(imgContainer);
+    card.appendChild(content);
     
-    // Add a subtle scale animation
-    card.style.transform = "scale(1.05)";
-    setTimeout(() => {
-      card.style.transform = "";
-    }, 300);
-  });
-  
-  return card;
+    // Add click event for the card
+    card.addEventListener("click", () => {
+      // Remove active class from all cards
+      document.querySelectorAll(".card").forEach((c) => c.classList.remove("active"));
+      
+      // Add active class to clicked card
+      card.classList.add("active");
+      
+      // Add a subtle scale animation
+      card.style.transform = "scale(1.05)";
+      setTimeout(() => {
+        card.style.transform = "";
+      }, 300);
+    });
+    
+    return card;
   }
 });
 
