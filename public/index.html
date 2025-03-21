@@ -123,6 +123,7 @@
             gap: 20px;
             flex: 1;
             min-height: 0;
+            padding:5px;
         }
 
         .left-container {
@@ -134,7 +135,7 @@
             height: 100%;
             background-color: white;
             position: relative;
-            border-radius: 10px;
+            border-radius: 26px;
             overflow: hidden;
             border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -167,8 +168,16 @@
 .right-container {
     width: 30%;
     min-width: 300px;
-    
+    background-color: white;
+            position: relative;
+            border-radius: 26px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: auto;
+    padding-top:10px;
+}
+.right-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome, Safari, Edge */
 }
 
 #imageContainer {
@@ -188,7 +197,7 @@
 .card {
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    background-color: #F9F9FF;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -290,10 +299,44 @@
     margin-top: 10px;
     font-size: 14px;
     color: #555;
-    background: #f9f9f9;
+    background: #FFFFFF;
     padding: 10px;
     border-radius: 5px;
     transition: all 0.3s ease;
+}
+.extra-content-container {
+    background: #fcfcff; /* Light background */
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.extra-header {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a5e;
+}
+
+.extra-icon {
+    width: 18px;  /* Adjust size */
+    height: 18px;
+    margin-right: 6px;
+}
+
+.extra-description {
+    font-size: 14px;
+    color: #666;
+    margin-top: 6px;
+}
+
+.extra-details {
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.5;
 }
 
 .no-images-message {
@@ -441,7 +484,7 @@
                 <div>
                     <button id="testButton" type="button">Start</button>
                     <button id="clearButton" type="button" class="clear">Clear All</button>
-                    <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button>
+                    <!-- <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button> -->
                 </div>
             </div>
         </div>
@@ -456,6 +499,7 @@
                 <div id="visualization"></div>
             </div>
             <div class="right-container">
+                <div style="padding-left: 10px; box-shadow: 0px 4px 6px -4px rgba(0, 0, 0, 0.1);">Report:</div>
                 <div id="imageContainer">
 
                     <!-- Image cards will be dynamically added here -->
