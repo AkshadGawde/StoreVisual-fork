@@ -238,7 +238,7 @@
 }
 
 .card-info-value {
-    font-weight: bold;
+    font-weight: normal;
 
     color:#717AEA; /* Values in blue */
     flex: 1;
@@ -351,6 +351,17 @@
 .card.active {
     border: 2px solid #6c63ff;
 }
+.control-panel div {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Add spacing between buttons */
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
         .distance-display {
             display: inline-block;
             padding: 10px 0;
@@ -359,6 +370,55 @@
             font-size: 16px;
             color: #000000;
         }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            background: #f5f7fc;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            width: 180px;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          }
+          
+          .toggle-container input {
+            display: none;
+          }
+          
+          .slider {
+            width: 40px;
+            height: 20px;
+            background: #e5e7fb;
+            border-radius: 10px;
+            position: relative;
+            transition: 0.3s;
+            cursor: pointer;
+          }
+          
+          .slider::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            background: #888;
+            position: absolute;
+            border-radius: 50%;
+            top: 1px;
+            left: 2px;
+            transition: 0.3s;
+          }
+          
+          input:checked + .slider {
+            background: #dce1ff;
+          }
+          
+          input:checked + .slider::before {
+            background: #6366f1;
+            transform: translateX(20px);
+          }
 
         .no-images-message {
             text-align: center;
@@ -474,7 +534,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="background-color: #EFF4FE;">
         <div style="display: flex; justify-content: space-between; align-items: center; background-color: #EFF4FE; padding: 5px;padding-left:15px; width: 100%;">
             <div style="display: flex; align-items: center;">
                 <img src="./images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
@@ -485,6 +545,11 @@
                     <button id="testButton" type="button">Start</button>
                     <button id="clearButton" type="button" class="clear">Clear All</button>
                     <!-- <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button> -->
+                    <label class="toggle-container">
+                        <span>Structure</span>
+                        <input type="checkbox" id="structureToggle" />
+                        <span class="slider"></span>
+                      </label>
                 </div>
             </div>
         </div>
@@ -499,7 +564,7 @@
                 <div id="visualization"></div>
             </div>
             <div class="right-container">
-                <div style="padding-left: 10px; box-shadow: 0px 4px 6px -4px rgba(0, 0, 0, 0.1);">Report:</div>
+                <div style="padding-left: 10px;padding-top:10px;font-weight:bold; box-shadow: 0px 4px 6px -4px rgba(0, 0, 0, 0.1);">Reports</div>
                 <div id="imageContainer">
 
                     <!-- Image cards will be dynamically added here -->

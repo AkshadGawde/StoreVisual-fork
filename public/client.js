@@ -1224,38 +1224,43 @@ function addStructureStyles() {
 }
 
 // Add button to toggle structures visibility
-function addStructureToggle() {
-  const controlPanel = document.querySelector('.control-panel');
-  const div = document.querySelector('.control-panel div:last-child');
+// function addStructureToggle() {
+//   const controlPanel = document.querySelector('.control-panel');
+//   const div = document.querySelector('.control-panel div:last-child');
   
-  const structureToggle = document.createElement('button');
-  structureToggle.id = 'structureToggle';
-  structureToggle.type = 'button';
-  structureToggle.className = 'toggle';
-  structureToggle.textContent = 'Structures: OFF';
+//   const structureToggle = document.createElement('button');
+//   structureToggle.id = 'structureToggle';
+//   structureToggle.type = 'button';
+//   structureToggle.className = 'toggle';
+//   structureToggle.textContent = 'Structures: OFF';
   
-  div.appendChild(structureToggle);
+//   div.appendChild(structureToggle);
   
-  // Add event listener
-  structureToggle.addEventListener('click', function(event) {
-    // Toggle structures visibility
-    const structures = document.querySelectorAll('.structure');
-    const isVisible = structureToggle.classList.contains('active');
+//   // Add event listener
+//   structureToggle.addEventListener('click', function(event) {
+//     // Toggle structures visibility
+//     const structures = document.querySelectorAll('.structure');
+//     const isVisible = structureToggle.classList.contains('active');
     
-    structures.forEach(structure => {
-      structure.style.display = isVisible ? 'none' : 'block';
-    });
+//     structures.forEach(structure => {
+//       structure.style.display = isVisible ? 'none' : 'block';
+//     });
     
-    // Update button state
-    structureToggle.textContent = isVisible ? 'Structures: OFF' : 'Structures: ON';
-    structureToggle.classList.toggle('active');
+//     // Update button state
+//     structureToggle.textContent = isVisible ? 'Structures: OFF' : 'Structures: ON';
+//     structureToggle.classList.toggle('active');
     
-    // Add ripple effect
-    createRipple(event);
+//     // Add ripple effect
+//     createRipple(event);
+//   });
+// }
+
+document.getElementById('structureToggle').addEventListener('change', function () {
+  const structures = document.querySelectorAll('.structure');
+  structures.forEach(structure => {
+    structure.style.display = this.checked ? 'block' : 'none';
   });
-}
-
-
+});
 
 // Function to initialize the store layout visualization
 function initializeStoreLayout() {
