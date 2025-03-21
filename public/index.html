@@ -123,6 +123,7 @@
             gap: 20px;
             flex: 1;
             min-height: 0;
+            padding:5px;
         }
 
         .left-container {
@@ -134,7 +135,7 @@
             height: 100%;
             background-color: white;
             position: relative;
-            border-radius: 10px;
+            border-radius: 26px;
             overflow: hidden;
             border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -167,8 +168,16 @@
 .right-container {
     width: 30%;
     min-width: 300px;
-    
+    background-color: white;
+            position: relative;
+            border-radius: 26px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: auto;
+    padding-top:10px;
+}
+.right-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome, Safari, Edge */
 }
 
 #imageContainer {
@@ -188,7 +197,7 @@
 .card {
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    background-color: #F9F9FF;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -229,7 +238,7 @@
 }
 
 .card-info-value {
-    font-weight: bold;
+    font-weight: normal;
 
     color:#717AEA; /* Values in blue */
     flex: 1;
@@ -290,10 +299,44 @@
     margin-top: 10px;
     font-size: 14px;
     color: #555;
-    background: #f9f9f9;
+    background: #FFFFFF;
     padding: 10px;
     border-radius: 5px;
     transition: all 0.3s ease;
+}
+.extra-content-container {
+    background: #fcfcff; /* Light background */
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.extra-header {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a5e;
+}
+
+.extra-icon {
+    width: 18px;  /* Adjust size */
+    height: 18px;
+    margin-right: 6px;
+}
+
+.extra-description {
+    font-size: 14px;
+    color: #666;
+    margin-top: 6px;
+}
+
+.extra-details {
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.5;
 }
 
 .no-images-message {
@@ -308,6 +351,17 @@
 .card.active {
     border: 2px solid #6c63ff;
 }
+.control-panel div {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Add spacing between buttons */
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
         .distance-display {
             display: inline-block;
             padding: 10px 0;
@@ -316,6 +370,55 @@
             font-size: 16px;
             color: #000000;
         }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            background: #f5f7fc;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            width: 180px;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          }
+          
+          .toggle-container input {
+            display: none;
+          }
+          
+          .slider {
+            width: 40px;
+            height: 20px;
+            background: #e5e7fb;
+            border-radius: 10px;
+            position: relative;
+            transition: 0.3s;
+            cursor: pointer;
+          }
+          
+          .slider::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            background: #888;
+            position: absolute;
+            border-radius: 50%;
+            top: 1px;
+            left: 2px;
+            transition: 0.3s;
+          }
+          
+          input:checked + .slider {
+            background: #dce1ff;
+          }
+          
+          input:checked + .slider::before {
+            background: #6366f1;
+            transform: translateX(20px);
+          }
 
         .no-images-message {
             text-align: center;
@@ -431,7 +534,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="background-color: #EFF4FE;">
         <div style="display: flex; justify-content: space-between; align-items: center; background-color: #EFF4FE; padding: 5px;padding-left:15px; width: 100%;">
             <div style="display: flex; align-items: center;">
                 <img src="./images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
@@ -441,7 +544,12 @@
                 <div>
                     <button id="testButton" type="button">Start</button>
                     <button id="clearButton" type="button" class="clear">Clear All</button>
-                    <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button>
+                    <!-- <button id="planogramToggle" type="button" class="toggle">Planogram: OFF</button> -->
+                    <label class="toggle-container">
+                        <span>Structure</span>
+                        <input type="checkbox" id="structureToggle" />
+                        <span class="slider"></span>
+                      </label>
                 </div>
             </div>
         </div>
@@ -456,6 +564,7 @@
                 <div id="visualization"></div>
             </div>
             <div class="right-container">
+                <div style="padding-left: 10px;padding-top:10px;font-weight:bold; box-shadow: 0px 4px 6px -4px rgba(0, 0, 0, 0.1);">Reports</div>
                 <div id="imageContainer">
 
                     <!-- Image cards will be dynamically added here -->

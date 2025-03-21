@@ -611,8 +611,26 @@ infoPairs.forEach(pair => {
   
   if (imageData.metadata && imageData.metadata.bannerData) {
     // If banner data exists in metadata, use it
-    extraContent.innerHTML = `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
-  } else {
+    extraContent.innerHTML =
+    //  `<i>AI Generated Summary: Brand - ${imageData.metadata.bannerData.brand || "N/A"}, Position - ${imageData.metadata.bannerData.position || "N/A"}, Type - ${imageData.metadata.bannerData.type || "N/A"}</i>`;
+     `
+     <div class="extra-content-container">
+         <div class="extra-header">
+             <img src="./images/star.png" alt="Icon" class="extra-icon" style='' />
+             <span class="extra-title">AI Analysis</span>
+         </div>
+         <p class="extra-description">
+             Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
+         </p>
+         <p class="extra-details">
+             <strong>Brand:</strong> ${imageData.metadata.bannerData.brand || "N/A"} <br>
+             <strong>Position:</strong> ${imageData.metadata.bannerData.position || "N/A"} <br>
+             <strong>Type:</strong> ${imageData.metadata.bannerData.type || "N/A"}
+         </p>
+     </div>
+ `;
+  
+    } else {
     // Make a placeholder and update it asynchronously
     extraContent.innerHTML = `<i>AI Generated Summary: Loading...</i>`;
     
@@ -630,9 +648,30 @@ infoPairs.forEach(pair => {
   })
     .then((response) => response.json())
     .then((data) => {
+      // if (data && data.data) {
+      //   extraContent.innerHTML = 
+      //   `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
+      // }
       if (data && data.data) {
-        extraContent.innerHTML = `<i>AI Generated Summary: Brand - ${data.data.brand || "N/A"}, Position - ${data.data.position || "N/A"}, Type - ${data.data.type || "N/A"}</i>`;
-      }
+        extraContent.innerHTML = 
+        `
+        <div class="extra-content-container">
+            <div class="extra-header">
+                <img src="your-image.png" alt="Icon" class="extra-icon" />
+                <span class="extra-title">AI Analysis</span>
+            </div>
+            <p class="extra-description">
+                Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
+            </p>
+            <p class="extra-details">
+                <strong>Brand:</strong> ${data.data.brand || "N/A"} <br>
+                <strong>Position:</strong> ${data.data.position || "N/A"} <br>
+                <strong>Type:</strong> ${data.data.type || "N/A"}
+            </p>
+        </div>
+    `;
+
+         }
     })
     .catch((error) => {
       console.error("Error fetching banner data:", error);
@@ -683,71 +722,71 @@ infoPairs.forEach(pair => {
 });
 
 // Planogram Toggle Functionality
-document.addEventListener("DOMContentLoaded", function () {
-  // Get the toggle button
-  const planogramToggle = document.getElementById("planogramToggle");
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Get the toggle button
+//   const planogramToggle = document.getElementById("planogramToggle");
 
-  // Get the visualization element with the overlay
-  const visualization = document.getElementById("visualization");
+//   // Get the visualization element with the overlay
+//   const visualization = document.getElementById("visualization");
 
-  // Variable to track toggle state
-  let planogramVisible = false;
+//   // Variable to track toggle state
+//   let planogramVisible = false;
 
-  // Add click event listener to the toggle button
-  planogramToggle.addEventListener("click", function () {
-    // Toggle the state
-    planogramVisible = !planogramVisible;
+//   // Add click event listener to the toggle button
+//   planogramToggle.addEventListener("click", function () {
+//     // Toggle the state
+//     planogramVisible = !planogramVisible;
 
-    // Update button text and style
-    if (planogramVisible) {
-      planogramToggle.textContent = "Planogram: ON";
-      planogramToggle.classList.add("active");
+//     // Update button text and style
+//     if (planogramVisible) {
+//       planogramToggle.textContent = "Planogram: ON";
+//       planogramToggle.classList.add("active");
 
-      // Make planogram visible by adjusting overlay opacity
-      visualization.style.backgroundOpacity = "0.3";
+//       // Make planogram visible by adjusting overlay opacity
+//       visualization.style.backgroundOpacity = "0.3";
 
-      // Make sure the visualization has the overlay class
-      if (!visualization.classList.contains("overlay")) {
-        visualization.classList.add("overlay");
-      }
-    } else {
-      planogramToggle.textContent = "Planogram: OFF";
-      planogramToggle.classList.remove("active");
+//       // Make sure the visualization has the overlay class
+//       if (!visualization.classList.contains("overlay")) {
+//         visualization.classList.add("overlay");
+//       }
+//     } else {
+//       planogramToggle.textContent = "Planogram: OFF";
+//       planogramToggle.classList.remove("active");
 
-      // Hide planogram by removing overlay class
-      visualization.classList.remove("overlay");
-    }
+//       // Hide planogram by removing overlay class
+//       visualization.classList.remove("overlay");
+//     }
 
-    // Add ripple effect (if you want to keep the ripple effect from the original code)
-    createRipple(event, planogramToggle);
-  });
+//     // Add ripple effect (if you want to keep the ripple effect from the original code)
+//     createRipple(event, planogramToggle);
+//   });
 
-  // Initialize the toggle state (starting with planogram hidden)
-  planogramVisible = false;
-  planogramToggle.textContent = "Planogram: OFF";
-  visualization.classList.remove("overlay");
+//   // Initialize the toggle state (starting with planogram hidden)
+//   planogramVisible = false;
+//   planogramToggle.textContent = "Planogram: OFF";
+//   visualization.classList.remove("overlay");
 
-  // Ripple effect function (assuming it's used in the original code)
-  function createRipple(event, button) {
-    const ripple = document.createElement("span");
-    ripple.classList.add("ripple");
+//   // Ripple effect function (assuming it's used in the original code)
+//   function createRipple(event, button) {
+//     const ripple = document.createElement("span");
+//     ripple.classList.add("ripple");
 
-    const diameter = Math.max(button.clientWidth, button.clientHeight);
-    const radius = diameter / 2;
+//     const diameter = Math.max(button.clientWidth, button.clientHeight);
+//     const radius = diameter / 2;
 
-    const rect = button.getBoundingClientRect();
+//     const rect = button.getBoundingClientRect();
 
-    ripple.style.width = ripple.style.height = `${diameter}px`;
-    ripple.style.left = `${event.clientX - rect.left - radius}px`;
-    ripple.style.top = `${event.clientY - rect.top - radius}px`;
+//     ripple.style.width = ripple.style.height = `${diameter}px`;
+//     ripple.style.left = `${event.clientX - rect.left - radius}px`;
+//     ripple.style.top = `${event.clientY - rect.top - radius}px`;
 
-    button.appendChild(ripple);
+//     button.appendChild(ripple);
 
-    ripple.addEventListener("animationend", () => {
-      ripple.remove();
-    });
-  }
-});
+//     ripple.addEventListener("animationend", () => {
+//       ripple.remove();
+//     });
+//   }
+// });
 
 const structures = [
   // {
@@ -1185,36 +1224,43 @@ function addStructureStyles() {
 }
 
 // Add button to toggle structures visibility
-function addStructureToggle() {
-  const controlPanel = document.querySelector('.control-panel');
-  const div = document.querySelector('.control-panel div:last-child');
+// function addStructureToggle() {
+//   const controlPanel = document.querySelector('.control-panel');
+//   const div = document.querySelector('.control-panel div:last-child');
   
-  const structureToggle = document.createElement('button');
-  structureToggle.id = 'structureToggle';
-  structureToggle.type = 'button';
-  structureToggle.className = 'toggle';
-  structureToggle.textContent = 'Structures: OFF';
+//   const structureToggle = document.createElement('button');
+//   structureToggle.id = 'structureToggle';
+//   structureToggle.type = 'button';
+//   structureToggle.className = 'toggle';
+//   structureToggle.textContent = 'Structures: OFF';
   
-  div.appendChild(structureToggle);
+//   div.appendChild(structureToggle);
   
-  // Add event listener
-  structureToggle.addEventListener('click', function(event) {
-    // Toggle structures visibility
-    const structures = document.querySelectorAll('.structure');
-    const isVisible = structureToggle.classList.contains('active');
+//   // Add event listener
+//   structureToggle.addEventListener('click', function(event) {
+//     // Toggle structures visibility
+//     const structures = document.querySelectorAll('.structure');
+//     const isVisible = structureToggle.classList.contains('active');
     
-    structures.forEach(structure => {
-      structure.style.display = isVisible ? 'none' : 'block';
-    });
+//     structures.forEach(structure => {
+//       structure.style.display = isVisible ? 'none' : 'block';
+//     });
     
-    // Update button state
-    structureToggle.textContent = isVisible ? 'Structures: OFF' : 'Structures: ON';
-    structureToggle.classList.toggle('active');
+//     // Update button state
+//     structureToggle.textContent = isVisible ? 'Structures: OFF' : 'Structures: ON';
+//     structureToggle.classList.toggle('active');
     
-    // Add ripple effect
-    createRipple(event);
+//     // Add ripple effect
+//     createRipple(event);
+//   });
+// }
+
+document.getElementById('structureToggle').addEventListener('change', function () {
+  const structures = document.querySelectorAll('.structure');
+  structures.forEach(structure => {
+    structure.style.display = this.checked ? 'block' : 'none';
   });
-}
+});
 
 // Function to initialize the store layout visualization
 function initializeStoreLayout() {
