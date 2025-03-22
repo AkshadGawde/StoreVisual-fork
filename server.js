@@ -58,20 +58,22 @@ io.on("connection", (socket) => {
 app.post("/api/coordinates", (req, res) => {
   const { coordinates } = req.body;
 
-  if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 3) {
+  if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 5) {
     return res.status(400).json({
       error:
-        "Invalid coordinates format. Expected [distance, x, z, photoCapture]",
+        "Invalid coordinates format. Expected [distance, x, z, photoCapture, l, b]",
     });
   }
 
-  const [distance, x, z, photoCapture = 0] = coordinates;
+  const [distance, x, z, photoCapture = 0, l = 0, b = 0] = coordinates;
 
   // Validate coordinate values
   if (
     typeof distance !== "number" ||
     typeof x !== "number" ||
-    typeof z !== "number"
+    typeof z !== "number" ||
+    typeof l !== "number" ||
+    typeof b !== "number"
   ) {
     return res
       .status(400)
@@ -86,7 +88,7 @@ app.post("/api/coordinates", (req, res) => {
   }
 
   console.log(
-    `Received coordinates: distance=${distance}, x=${x}, z=${z}, photo=${photoCapture}`
+    `Received coordinates: distance=${distance}, x=${x}, z=${z}, photo=${photoCapture}, l=${l}, b=${b}`
   );
 
   // Process and store the coordinates
@@ -95,6 +97,8 @@ app.post("/api/coordinates", (req, res) => {
     x,
     z,
     photoCapture: photoCapture || 0,
+    l: l || 0,
+    b: b || 0,
     timestamp: Date.now(),
   };
 
